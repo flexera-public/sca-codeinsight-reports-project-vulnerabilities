@@ -42,21 +42,11 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
         priority = inventoryItem["priority"]
         componentVersionName = inventoryItem["componentVersionName"]
         selectedLicenseName = inventoryItem["selectedLicenseName"]
-        #selectedLicenseSPDXIdentifier = inventoryItem["selectedLicenseSPDXIdentifier"]
+        selectedLicenseSPDXIdentifier = inventoryItem["selectedLicenseSPDXIdentifier"]
         selectedLicensePriority = inventoryItem["selectedLicensePriority"]
-
-        
 
         logger.debug("Processing iventory items %s of %s" %(currentItem, totalNumberIventory))
         logger.debug("    %s" %(inventoryItemName))
-        
-        try:
-            filePaths = inventoryItem["filePaths"]
-            for fileName in filePaths:
-                if fileName.endswith(".bb"):
-                    break 
-        except:
-            logger.debug("        no file path details")
         
         try:
             vulnerabilities = inventoryItem["vulnerabilities"]
@@ -65,8 +55,8 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
             logger.debug("No vulnerabilies for %s - %s" %(componentName, componentVersionName))
             vulnerabilityData = ""
 
-        #if selectedLicenseSPDXIdentifier != "":
-        #    selectedLicenseName = selectedLicenseSPDXIdentifier
+        if selectedLicenseSPDXIdentifier != "":
+            selectedLicenseName = selectedLicenseSPDXIdentifier
 
         inventoryData[inventoryItemName] = {
                                                 "componentName" : componentName,
