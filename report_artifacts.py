@@ -136,27 +136,17 @@ def generate_html_report(reportData):
 
     html_ptr.write("<table id='inventoryData' class='table table-hover table-bordered table-sm' style='width:90%'>\n")
 
-    html_ptr.write("<colgroup>\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 25%;\">\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 10%;\">\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 15%;\">\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 10%;\">\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 15%;\">\n")
-    html_ptr.write("<col span=\"1\" style=\"width: 25%;\">\n")
-    html_ptr.write("</colgroup>\n")
-
-
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
     html_ptr.write("            <th colspan='6' class='text-center'>%s</th>\n" %projectName) 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
-    html_ptr.write("            <th class='text-center'>INVENTORY ITEM</th>\n") 
-    html_ptr.write("            <th class='text-center'>PRIORITY</th>\n") 
-    html_ptr.write("            <th class='text-center'>COMPONENT</th>\n")
-    html_ptr.write("            <th class='text-center'>VERSION</th>\n")
-    html_ptr.write("            <th class='text-center'>LICENSE</th>\n") 
-    html_ptr.write("            <th class='text-center'>VULNERABILITIES</th>\n")
+    html_ptr.write("            <th style='width: 30%' class='text-center'>INVENTORY ITEM</th>\n") 
+    html_ptr.write("            <th style='width: 10%' class='text-center'>PRIORITY</th>\n") 
+    html_ptr.write("            <th style='width: 15%' class='text-center'>COMPONENT</th>\n")
+    html_ptr.write("            <th style='width: 10%' class='text-center'>VERSION</th>\n")
+    html_ptr.write("            <th style='width: 15%' class='text-center'>LICENSE</th>\n") 
+    html_ptr.write("            <th style='width: 18%' class='text-center'>VULNERABILITIES</th>\n")
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
@@ -196,41 +186,10 @@ def generate_html_report(reportData):
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentVersionName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(selectedLicenseName))
-        html_ptr.write("            <td class='text-left'>\n")
-
-        if numCriticalVulnerabilities == 0:
-            logger.debug("No critical vulnerabilities")
-            html_ptr.write("                <span class='btn btn-empty'>&nbsp;</span>\n")
-        else:
-            logger.debug("    numCriticalVulnerabilities - %s" %numCriticalVulnerabilities)
-            html_ptr.write("                <span class='btn btn-critical'>%s</span>\n" %numCriticalVulnerabilities)
-
-        if numHighVulnerabilities == 0:
-            logger.debug("No high vulnerabilities")
-            html_ptr.write("                <span class='btn btn-empty'>&nbsp;</span>\n")
-        else:
-            logger.debug("    numHighVulnerabilities - %s" %numHighVulnerabilities)
-            html_ptr.write("                <span class='btn btn-high'>%s</span>\n" %numHighVulnerabilities)
-
-        if numMediumVulnerabilities == 0:
-            logger.debug("No medium vulnerabilities")
-            html_ptr.write("                <span class='btn btn-empty'>&nbsp;</span>\n")
-        else:
-            logger.debug("    numMediumVulnerabilities - %s" %numMediumVulnerabilities)
-            html_ptr.write("                <span class='btn btn-medium'>%s</span>\n" %numMediumVulnerabilities)
-
-        if numLowVulnerabilities == 0:
-            logger.debug("No low vulnerabilities")
-            html_ptr.write("                <span class='btn btn-empty'>&nbsp;</span>\n")
-        else:
-            logger.debug("    numLowVulnerabilities - %s" %numLowVulnerabilities)
-            html_ptr.write("                <span class='btn btn-low'>%s</span>\n" %numLowVulnerabilities)
+        html_ptr.write("            <td class='text-center text-nowrap'>\n")
         
-        if numNoneVulnerabilities == 0:
-            html_ptr.write("                <span class='btn btn-empty'>&nbsp;</span>\n")
-        else:
-            logger.debug("    numNoneVulnerabilities - %s" %numNoneVulnerabilities)
-            html_ptr.write("                <span class='btn btn-none'>%s</span>\n" %numNoneVulnerabilities)
+        # Write in single line to remove spaces between btn spans
+        html_ptr.write("                <span class='btn btn-critical'>%s</span><span class='btn btn-high'>%s</span><span class='btn btn-medium'>%s</span><span class='btn btn-low'>%s</span><span class='btn btn-none'>%s</span>\n" %(numCriticalVulnerabilities,numHighVulnerabilities,numMediumVulnerabilities, numLowVulnerabilities, numNoneVulnerabilities))
 
         html_ptr.write("            </td>\n")
 
