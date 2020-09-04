@@ -92,8 +92,6 @@ def main():
 		logger.error("Error created zip archive for upload.")
 		return -1
 
-
-
 	#########################################################
 	# Upload the file to Code Insight
 	try:
