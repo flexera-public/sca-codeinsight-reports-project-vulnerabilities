@@ -240,32 +240,11 @@ def generate_html_report(reportData):
         <script>
             var table = $('#inventoryData').DataTable();
 
-            $("#hideExact").click(function() {
-                $.fn.dataTable.ext.search.pop();
-                $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-                    return $(table.row(dataIndex).node()).attr('matchType') == "CV";
-                }
-            );
-            table.draw();
-            }); 
-
-
-            $("#hideNonExact").click(function() {
-            $.fn.dataTable.ext.search.pop();
-                $.fn.dataTable.ext.search.push(
-                function(settings, data, dataIndex) {
-
-                    return $(table.row(dataIndex).node()).attr('matchType') == "CVL";
-                    }
-                );
-                table.draw();
-            });    
-            $("#reset").click(function() {
-                $.fn.dataTable.ext.search.pop();
-                table.draw();
-            });
-            </script>
+            $(document).ready(function() {
+                table;
+            } );
+            
+        </script>
 
 
         ''')
