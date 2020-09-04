@@ -152,7 +152,7 @@ def generate_html_report(reportData):
     for inventoryItem in sorted(inventoryData):
         componentName = inventoryData[inventoryItem]["componentName"]
         componentVersionName = inventoryData[inventoryItem]["componentVersionName"]
-        priority = inventoryData[inventoryItem]["priority"]
+        inventoryPriority = inventoryData[inventoryItem]["inventoryPriority"]
         selectedLicenseName = inventoryData[inventoryItem]["selectedLicenseName"]
         selectedLicensePriority = inventoryData[inventoryItem]["selectedLicensePriority"]
         vulnerabilityData = inventoryData[inventoryItem]["vulnerabilityData"]
@@ -179,16 +179,16 @@ def generate_html_report(reportData):
         html_ptr.write("        <tr> \n")
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(inventoryItem))
 
-        if priority == "High":
-            html_ptr.write("            <td data-sort='4' class='text-left text-nowrap'><span class='dot dot-red'></span>P1 - %s</td>\n" %(priority))
-        elif priority == "Medium":
-            html_ptr.write("            <td data-sort='3' class='text-left text-nowrap'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(priority))
-        elif priority == "Low":
-            html_ptr.write("            <td data-sort='2' class='text-left text-nowrap'><span class='dot dot-green'></span>P3 - %s</td>\n" %(priority))
-        elif priority == "Other":
-            html_ptr.write("            <td data-sort='1' class='text-left text-nowrap'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(priority))
+        if inventoryPriority == "High":
+            html_ptr.write("            <td data-sort='4' class='text-left text-nowrap'><span class='dot dot-red'></span>P1 - %s</td>\n" %(inventoryPriority))
+        elif inventoryPriority == "Medium":
+            html_ptr.write("            <td data-sort='3' class='text-left text-nowrap'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(inventoryPriority))
+        elif inventoryPriority == "Low":
+            html_ptr.write("            <td data-sort='2' class='text-left text-nowrap'><span class='dot dot-green'></span>P3 - %s</td>\n" %(inventoryPriority))
+        elif inventoryPriority == "Other":
+            html_ptr.write("            <td data-sort='1' class='text-left text-nowrap'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(inventoryPriority))
         else:
-            html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(priority))
+            html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(inventoryPriority))
 
         
         html_ptr.write("            <td class='text-left'><a href='%s'>%s</a></td>\n" %(componentUrl, componentName))

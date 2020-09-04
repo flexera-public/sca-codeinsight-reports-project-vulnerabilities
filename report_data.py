@@ -39,7 +39,7 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
 
         inventoryItemName = inventoryItem["name"]
         componentName = inventoryItem["componentName"]
-        priority = inventoryItem["priority"]
+        inventoryPriority = inventoryItem["priority"]
         componentVersionName = inventoryItem["componentVersionName"]
         selectedLicenseName = inventoryItem["selectedLicenseName"]
         selectedLicenseSPDXIdentifier = inventoryItem["selectedLicenseSPDXIdentifier"]
@@ -66,7 +66,7 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
             "selectedLicenseName" : selectedLicenseName,
             "vulnerabilityData" : vulnerabilityData,
             "selectedLicensePriority" : selectedLicensePriority,
-            "priority" : priority,
+            "inventoryPriority" : inventoryPriority,
             "componentUrl" : componentUrl,
             "selectedLicenseUrl" : selectedLicenseUrl
         }
