@@ -95,7 +95,7 @@ def generate_html_report(reportData):
     except:
         logger.error("Unable to open %s" %cssFile)
         print("Unable to open %s" %cssFile)
-    
+
     html_ptr.write("        </style>\n")  
 
     html_ptr.write("    	<link rel='icon' type='image/png' href='data:image/png;base64, {}'>\n".format(encodedfaviconImage.decode('utf-8')))
@@ -128,17 +128,11 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN BODY -->\n")  
 
-    
-    #html_ptr.write('''<button id="hideNonExact">Show Common Components</button>''')
-    #html_ptr.write('''<button id="hideExact">Show Differences</button>''')    
-    #html_ptr.write('''<button id="reset">Show All</button>''')
-
-
     html_ptr.write("<table id='inventoryData' class='table table-hover table-bordered table-sm' style='width:90%'>\n")
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    html_ptr.write("            <th colspan='6' class='text-center'>%s</th>\n" %projectName) 
+    html_ptr.write("            <th colspan='6' class='text-center'><h4>%s</h4></th>\n" %projectName) 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 30%' class='text-center'>INVENTORY ITEM</th>\n") 
@@ -182,11 +176,23 @@ def generate_html_report(reportData):
 
         html_ptr.write("        <tr> \n")
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(inventoryItem))
-        html_ptr.write("            <td class='text-left'>%s</td>\n" %(priority))
+
+        if priority == "High":
+            html_ptr.write("            <td data-sort='3' class='text-left'><span class='dot dot-red'></span>P1 - %s</td>\n" %(priority))
+        elif priority == "Medium":
+            html_ptr.write("            <td data-sort='2' class='text-left'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(priority))
+        elif priority == "Low":
+            html_ptr.write("            <td data-sort='1' class='text-left'><span class='dot dot-green'></span>P3 - %s</td>\n" %(priority))
+        elif priority == "Other":
+            html_ptr.write("            <td data-sort='1' class='text-left'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(priority))
+        else:
+            html_ptr.write("            <td class='text-left'><span class='dot dot-gray'></span>%s</td>\n" %(priority))
+
+        
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentVersionName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(selectedLicenseName))
-        html_ptr.write("            <td class='text-center text-nowrap'>\n")
+        html_ptr.write("            <td class='text-center text-nowrap' data-sort='%s' >\n" %numCriticalVulnerabilities)
         
         # Write in single line to remove spaces between btn spans
         html_ptr.write("                <span class='btn btn-critical'>%s</span><span class='btn btn-high'>%s</span><span class='btn btn-medium'>%s</span><span class='btn btn-low'>%s</span><span class='btn btn-none'>%s</span>\n" %(numCriticalVulnerabilities,numHighVulnerabilities,numMediumVulnerabilities, numLowVulnerabilities, numNoneVulnerabilities))
@@ -227,7 +233,6 @@ def generate_html_report(reportData):
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>  
     <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script> 
-
     ''')
 
 
