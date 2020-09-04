@@ -178,15 +178,15 @@ def generate_html_report(reportData):
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(inventoryItem))
 
         if priority == "High":
-            html_ptr.write("            <td data-sort='3' class='text-left'><span class='dot dot-red'></span>P1 - %s</td>\n" %(priority))
+            html_ptr.write("            <td data-sort='4' class='text-left text-nowrap'><span class='dot dot-red'></span>P1 - %s</td>\n" %(priority))
         elif priority == "Medium":
-            html_ptr.write("            <td data-sort='2' class='text-left'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(priority))
+            html_ptr.write("            <td data-sort='3' class='text-left text-nowrap'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(priority))
         elif priority == "Low":
-            html_ptr.write("            <td data-sort='1' class='text-left'><span class='dot dot-green'></span>P3 - %s</td>\n" %(priority))
+            html_ptr.write("            <td data-sort='2' class='text-left text-nowrap'><span class='dot dot-green'></span>P3 - %s</td>\n" %(priority))
         elif priority == "Other":
-            html_ptr.write("            <td data-sort='1' class='text-left'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(priority))
+            html_ptr.write("            <td data-sort='1' class='text-left text-nowrap'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(priority))
         else:
-            html_ptr.write("            <td class='text-left'><span class='dot dot-gray'></span>%s</td>\n" %(priority))
+            html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(priority))
 
         
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentName))
@@ -243,7 +243,7 @@ def generate_html_report(reportData):
             $(document).ready(function() {
                 table;
             } );
-            
+
         </script>
 
 
