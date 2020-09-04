@@ -47,15 +47,25 @@ def generate_html_report(reportData):
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
     logoImageFile =  os.path.join(scriptDirectory, "html-assets/images/logo.svg")
     iconFile =  os.path.join(scriptDirectory, "html-assets/images/favicon-revenera.ico")
+    statusApprovedIcon = os.path.join(scriptDirectory, "html-assets/images/status_approved_selected.png")
+    statusRejectedIcon = os.path.join(scriptDirectory, "html-assets/images/status_rejected_selected.png")
+    statusDraftIcon = os.path.join(scriptDirectory, "html-assets/images/status_draft_ready_selected.png")
+
     logger.debug("cssFile: %s" %cssFile)
     logger.debug("imageFile: %s" %logoImageFile)
     logger.debug("iconFile: %s" %iconFile)
+    logger.debug("statusApprovedIcon: %s" %statusApprovedIcon)
+    logger.debug("statusRejectedIcon: %s" %statusRejectedIcon)
+    logger.debug("statusDraftIcon: %s" %statusDraftIcon)
 
 
     #########################################################
     #  Encode the image files
     encodedLogoImage = encodeImage(logoImageFile)
     encodedfaviconImage = encodeImage(iconFile)
+    encodedStatusApprovedIcon = encodeImage(statusApprovedIcon)
+    encodedStatusRejectedIcon = encodeImage(statusRejectedIcon)
+    encodedStatusDraftIcon = encodeImage(statusDraftIcon)
 
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
@@ -135,15 +145,16 @@ def generate_html_report(reportData):
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    html_ptr.write("            <th colspan='6' class='text-center'><h4>%s</h4></th>\n" %projectName) 
+    html_ptr.write("            <th colspan='7' class='text-center'><h4>%s</h4></th>\n" %projectName) 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
-    html_ptr.write("            <th style='width: 30%' class='text-center'>INVENTORY ITEM</th>\n") 
+    html_ptr.write("            <th style='width: 25%' class='text-center'>INVENTORY ITEM</th>\n") 
     html_ptr.write("            <th style='width: 10%' class='text-center'>PRIORITY</th>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>COMPONENT</th>\n")
-    html_ptr.write("            <th style='width: 10%' class='text-center'>VERSION</th>\n")
-    html_ptr.write("            <th style='width: 15%' class='text-center'>LICENSE</th>\n") 
+    html_ptr.write("            <th style='width: 8%' class='text-center'>VERSION</th>\n")
+    html_ptr.write("            <th style='width: 10%' class='text-center'>LICENSE</th>\n") 
     html_ptr.write("            <th style='width: 18%' class='text-center'>VULNERABILITIES</th>\n")
+    html_ptr.write("            <th style='width: 14%' class='text-center'>REVIEW STATUS</th>\n")
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
@@ -162,6 +173,7 @@ def generate_html_report(reportData):
         componentUrl = inventoryData[inventoryItem]["componentUrl"]
         selectedLicenseUrl = inventoryData[inventoryItem]["selectedLicenseUrl"]
         inventoryID = inventoryData[inventoryItem]["inventoryID"]
+        inventoryReviewStatus = inventoryData[inventoryItem]["inventoryReviewStatus"]
 
         logger.debug("Reporting for inventory item %s" %inventoryItem)
 
@@ -205,6 +217,15 @@ def generate_html_report(reportData):
         
         # Write in single line to remove spaces between btn spans
         html_ptr.write("                <span class='btn btn-critical'>%s</span><span class='btn btn-high'>%s</span><span class='btn btn-medium'>%s</span><span class='btn btn-low'>%s</span><span class='btn btn-none'>%s</span>\n" %(numCriticalVulnerabilities,numHighVulnerabilities,numMediumVulnerabilities, numLowVulnerabilities, numNoneVulnerabilities))
+
+        if inventoryReviewStatus == "Approved":
+            html_ptr.write("            <td class='text-left text-nowrap' style='color:green;'><img src='data:image/png;base64, %s' width='15px' height='15px'> %s</td>\n" %(encodedStatusApprovedIcon.decode('utf-8'), inventoryReviewStatus))
+        elif inventoryReviewStatus == "Rejected":
+            html_ptr.write("            <td class='text-left text-nowrap' style='color:red;'><img src='data:image/png;base64, %s' width='15px' height='15px'> %s</td>\n" %(encodedStatusRejectedIcon.decode('utf-8'), inventoryReviewStatus))
+        elif inventoryReviewStatus == "Draft":
+            html_ptr.write("            <td class='text-left text-nowrap' style='color:gray;'><img src='data:image/png;base64, %s' width='15px' height='15px'> %s</td>\n" %(encodedStatusDraftIcon.decode('utf-8'), inventoryReviewStatus))
+        else:
+            html_ptr.write("            <td class='text-left text-nowrap'>%s</td>\n" %(inventoryReviewStatus))
 
         html_ptr.write("            </td>\n")
 
