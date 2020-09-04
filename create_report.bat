@@ -4,7 +4,7 @@ set projectId=%1
 set reportId=%2
 set authToken=%3
 rem # These are not currently passed via the framework but should be in a future release
-set domainName="localhost"
+set domainName="http://localhost"
 set port=8888
 
 rem ###############################################################################

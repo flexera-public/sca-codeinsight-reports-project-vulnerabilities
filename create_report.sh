@@ -3,7 +3,7 @@ projectId=$1
 reportId=$2
 authToken=$3
 # These are not currently passed via the framework but should be in a future release
-domainName=localhost
+domainName=http://localhost
 port=8888
 
 ###############################################################################
