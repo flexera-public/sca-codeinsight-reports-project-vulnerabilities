@@ -46,6 +46,7 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
         selectedLicensePriority = inventoryItem["selectedLicensePriority"]
         componentUrl = inventoryItem["componentUrl"]
         selectedLicenseUrl = inventoryItem["selectedLicenseUrl"]
+        inventoryID = inventoryItem["id"]
 
         logger.debug("Processing iventory items %s of %s" %(currentItem, totalNumberIventory))
         logger.debug("    %s" %(inventoryItemName))
@@ -68,14 +69,18 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
             "selectedLicensePriority" : selectedLicensePriority,
             "inventoryPriority" : inventoryPriority,
             "componentUrl" : componentUrl,
-            "selectedLicenseUrl" : selectedLicenseUrl
+            "selectedLicenseUrl" : selectedLicenseUrl,
+            "inventoryID" : inventoryID
         }
             
 
     reportData = {}
     reportData["reportName"] = reportName
+    reportData["projectID"] = projectID
     reportData["projectName"] = projectName
     reportData["inventoryData"] = inventoryData
+    reportData["domainName"] = domainName
+    reportData["port"] = port
 
     logger.info("Exiting gather_data_for_report")
 

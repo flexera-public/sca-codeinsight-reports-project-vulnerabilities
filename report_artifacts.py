@@ -38,6 +38,9 @@ def generate_html_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
+    projectID  = reportData["projectID"]
+    domainName  = reportData["domainName"]
+    port  = reportData["port"]
     inventoryData = reportData["inventoryData"]
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
@@ -158,6 +161,7 @@ def generate_html_report(reportData):
         vulnerabilityData = inventoryData[inventoryItem]["vulnerabilityData"]
         componentUrl = inventoryData[inventoryItem]["componentUrl"]
         selectedLicenseUrl = inventoryData[inventoryItem]["selectedLicenseUrl"]
+        inventoryID = inventoryData[inventoryItem]["inventoryID"]
 
         logger.debug("Reporting for inventory item %s" %inventoryItem)
 
@@ -177,7 +181,10 @@ def generate_html_report(reportData):
             logger.debug("    No vulnerability data")
 
         html_ptr.write("        <tr> \n")
-        html_ptr.write("            <td class='text-left'>%s</td>\n" %(inventoryItem))
+
+
+        html_ptr.write("            <td class='text-left'><a href='%s:%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s'>%s</a></td>\n" %(domainName, port, projectID, inventoryID, inventoryItem))
+ 
 
         if inventoryPriority == "High":
             html_ptr.write("            <td data-sort='4' class='text-left text-nowrap'><span class='dot dot-red'></span>P1 - %s</td>\n" %(inventoryPriority))
