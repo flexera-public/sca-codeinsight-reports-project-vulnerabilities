@@ -44,6 +44,8 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
         selectedLicenseName = inventoryItem["selectedLicenseName"]
         selectedLicenseSPDXIdentifier = inventoryItem["selectedLicenseSPDXIdentifier"]
         selectedLicensePriority = inventoryItem["selectedLicensePriority"]
+        componentUrl = inventoryItem["componentUrl"]
+        selectedLicenseUrl = inventoryItem["selectedLicenseUrl"]
 
         logger.debug("Processing iventory items %s of %s" %(currentItem, totalNumberIventory))
         logger.debug("    %s" %(inventoryItemName))
@@ -59,14 +61,15 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
             selectedLicenseName = selectedLicenseSPDXIdentifier
 
         inventoryData[inventoryItemName] = {
-                                                "componentName" : componentName,
-                                                "componentVersionName" : componentVersionName,
-                                                "selectedLicenseName" : selectedLicenseName,
-                                                "vulnerabilityData" : vulnerabilityData,
-                                                "selectedLicensePriority" : selectedLicensePriority,
-                                                "priority" : priority
-
-                                            }
+            "componentName" : componentName,
+            "componentVersionName" : componentVersionName,
+            "selectedLicenseName" : selectedLicenseName,
+            "vulnerabilityData" : vulnerabilityData,
+            "selectedLicensePriority" : selectedLicensePriority,
+            "priority" : priority,
+            "componentUrl" : componentUrl,
+            "selectedLicenseUrl" : selectedLicenseUrl
+        }
             
 
     reportData = {}

@@ -156,6 +156,8 @@ def generate_html_report(reportData):
         selectedLicenseName = inventoryData[inventoryItem]["selectedLicenseName"]
         selectedLicensePriority = inventoryData[inventoryItem]["selectedLicensePriority"]
         vulnerabilityData = inventoryData[inventoryItem]["vulnerabilityData"]
+        componentUrl = inventoryData[inventoryItem]["componentUrl"]
+        selectedLicenseUrl = inventoryData[inventoryItem]["selectedLicenseUrl"]
 
         logger.debug("Reporting for inventory item %s" %inventoryItem)
 
@@ -189,9 +191,9 @@ def generate_html_report(reportData):
             html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(priority))
 
         
-        html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentName))
+        html_ptr.write("            <td class='text-left'><a href='%s'>%s</a></td>\n" %(componentUrl, componentName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentVersionName))
-        html_ptr.write("            <td class='text-left'>%s</td>\n" %(selectedLicenseName))
+        html_ptr.write("            <td class='text-left'><a href='%s'>%s</a></td>\n" %(selectedLicenseUrl, selectedLicenseName))
         html_ptr.write("            <td class='text-center text-nowrap' data-sort='%s' >\n" %numCriticalVulnerabilities)
         
         # Write in single line to remove spaces between btn spans
