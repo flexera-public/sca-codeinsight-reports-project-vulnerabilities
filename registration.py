@@ -20,7 +20,7 @@ import CodeInsight_RESTAPIs.reports.delete_report
 
 #####################################################################################################
 #  Report Details
-reportName = "Project Comparison Report"  # What is the name to be shown within Code Insight?
+reportName = "Project Inventory Report"  # What is the name to be shown within Code Insight?
 enableProjectPickerValue = "false"   # true if a second project can be used within this report
 
 #####################################################################################################
