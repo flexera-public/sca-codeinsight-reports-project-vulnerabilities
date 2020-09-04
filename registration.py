@@ -43,11 +43,13 @@ currentFolderName = os.path.basename(os.getcwd())
 #####################################################################################################
 # The path with the custom_report_scripts folder to called via the framework
 if sys.platform.startswith('linux'):
-    reportPath = currentFolderName + "/create_report.sh" 
+    reportHelperScript = "create_report.sh"
 elif sys.platform == "win32":
-    reportPath = currentFolderName + "/create_report.bat"
+    reportHelperScript = "create_report.bat"
 else:
     sys.exit("No script file for operating system")
+
+reportPath = currentFolderName + "/" + reportHelperScript     
 
 ###################################################################################
 # Test the version of python to make sure it's at least the version the script
@@ -81,7 +83,7 @@ def main():
         register_custom_reports()
         if sys.platform.startswith('linux'):
             # Make the shell script executable
-            os.chmod(reportPath, os.stat(reportPath).st_mode | stat.S_IEXEC)
+            os.chmod(reportHelperScript, os.stat(reportHelperScript).st_mode | stat.S_IEXEC)
     elif args.unregister:
         unregister_custom_reports()
     else:
