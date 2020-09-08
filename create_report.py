@@ -38,8 +38,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-pid', "--projectID", help="Project ID")
 parser.add_argument("-rid", "--reportID", help="Report ID")
 parser.add_argument("-authToken", "--authToken", help="Code Insight Authorization Token")
-parser.add_argument("-domainName", "--domainName", help="Code Insight Core Server Domain Name")
-parser.add_argument("-port", "--port", help="Code Insight Core Server Port")
+parser.add_argument("-baseURL", "--baseURL", help="Code Insight Core Server Protocol/Domain Name/Port.  i.e. http://localhost:8888 or https://sca.codeinsight.com:8443")
+
 
 
 #----------------------------------------------------------------------#
@@ -55,19 +55,17 @@ def main():
 	projectID = args.projectID
 	reportID = args.reportID
 	authToken = args.authToken
-	port = args.port
-	domainName = args.domainName
+	baseURL = args.baseURL
 	
 	logger.debug("Custom Report Provided Arguments:")	
 	logger.debug("    projectID:  %s" %projectID)	
 	logger.debug("    reportID:   %s" %reportID)	
-	logger.debug("    domainName:  %s" %domainName)	
-	logger.debug("    port:  %s" %port)
+	logger.debug("    baseURL:  %s" %baseURL)	
 	logger.debug("    authToken:  %s" %authToken)
 
 
 	try:
-		reportData = report_data.gather_data_for_report(domainName, port, projectID, authToken, reportName)
+		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName)
 		print("    Report data has been collected")
 	except:
 		print("Error encountered while collecting report data.  Please see log for details")
@@ -95,7 +93,7 @@ def main():
 	#########################################################
 	# Upload the file to Code Insight
 	try:
-		CodeInsight_RESTAPIs.project.upload_reports.upload_project_report_data(domainName, port, projectID, reportID, authToken, uploadZipfile)
+		CodeInsight_RESTAPIs.project.upload_reports.upload_project_report_data(baseURL, projectID, reportID, authToken, uploadZipfile)
 	except:
 		print("Error uploading archive to Code Insight")
 		logger.error("Error uploading archive to Code Insight.")

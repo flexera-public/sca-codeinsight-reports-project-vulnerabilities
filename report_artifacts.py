@@ -39,8 +39,7 @@ def generate_html_report(reportData):
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
     projectID  = reportData["projectID"]
-    domainName  = reportData["domainName"]
-    port  = reportData["port"]
+    baseURL  = reportData["baseURL"]
     inventoryData = reportData["inventoryData"]
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
@@ -195,7 +194,7 @@ def generate_html_report(reportData):
         html_ptr.write("        <tr> \n")
 
 
-        html_ptr.write("            <td class='text-left'><a href='%s:%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s'>%s</a></td>\n" %(domainName, port, projectID, inventoryID, inventoryItem))
+        html_ptr.write("            <td class='text-left'><a href='%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s'>%s</a></td>\n" %(baseURL, projectID, inventoryID, inventoryItem))
  
 
         if inventoryPriority == "High":

@@ -25,14 +25,13 @@ enableProjectPickerValue = "false"   # true if a second project can be used with
 
 #####################################################################################################
 #  Code Insight System Information
-domainName = "UPDATEME"
-port = "UPDATEME"
+baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
 adminAuthToken = "UPDATEME"
 
 #####################################################################################################
 # Quick sanity check
-if adminAuthToken == "UPDATEME":
-    print("Make sure domainName, port and the admin authorization token have been updated within registration.py")
+if adminAuthToken == "UPDATEME" or baseURL == "UPDATEME":
+    print("Make sure baseURL and the admin authorization token have been updated within registration.py")
     sys.exit()
 
 #####################################################################################################
@@ -96,7 +95,7 @@ def register_custom_reports():
     # Get the current reports so we can ensure the indexes of the new
     # reports have no conflicts
     try:
-        currentReports = CodeInsight_RESTAPIs.reports.get_reports.get_currently_registered_reports(domainName, port, adminAuthToken)
+        currentReports = CodeInsight_RESTAPIs.reports.get_reports.get_currently_registered_reports(baseURL, adminAuthToken)
     except:
         logger.error("Unable to retrieve currently registered reports")
         print("Unable to retrieve currently registered reports.  See log file for details")
@@ -110,7 +109,7 @@ def register_custom_reports():
     print("Attempting to register %s with a report order of %s" %(reportName, reportOrder))
 
     try:
-        reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, domainName, port, adminAuthToken)
+        reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, baseURL, adminAuthToken)
         print("%s has been registed with a report ID of %s" %(reportName, reportID))
         logger.info("%s has been registed with a report ID of %s" %(reportName, reportID))
     except:
@@ -124,7 +123,7 @@ def unregister_custom_reports():
     logger.debug("Entering unregister_custom_reports")
 
     try:
-        CodeInsight_RESTAPIs.reports.delete_report.unregister_report(domainName, port, adminAuthToken, reportName)
+        CodeInsight_RESTAPIs.reports.delete_report.unregister_report(baseURL, adminAuthToken, reportName)
         print("%s has been unregisted." %reportName)
         logger.info("%s has been unregisted."%reportName)
     except:

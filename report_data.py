@@ -14,7 +14,7 @@ import CodeInsight_RESTAPIs.project.get_project_inventory
 logger = logging.getLogger(__name__)
 
 #-------------------------------------------------------------------#
-def gather_data_for_report(domainName, port, projectID, authToken, reportName):
+def gather_data_for_report(baseURL, projectID, authToken, reportName):
     logger.info("Entering gather_data_for_report")
 
 
@@ -23,7 +23,7 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
 
     # Get details for  project
     try:
-        projectInventoryResponse = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(domainName, port, projectID, authToken)
+        projectInventoryResponse = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
     except:
         logger.error("    No project ineventory response!")
         print("No project inventory response.")
@@ -81,8 +81,7 @@ def gather_data_for_report(domainName, port, projectID, authToken, reportName):
     reportData["projectID"] = projectID
     reportData["projectName"] = projectName
     reportData["inventoryData"] = inventoryData
-    reportData["domainName"] = domainName
-    reportData["port"] = port
+    reportData["baseURL"] = baseURL
 
     logger.info("Exiting gather_data_for_report")
 
