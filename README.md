@@ -5,13 +5,16 @@ The sca-codeinsight-reports-project-inventory repository is a example report for
 This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables](https://datatables.net/) for the creation of the report file
  
 
+
 ## Prerequisites
+
 
  **Code Insight Release Requirements**
   
 |Repository Tag|Minimum Code Insight Release  |
 |--|--|
-|1.x.x |2020R3  |
+|1.0.x |2020R3  |
+
 
 
 **Submodule Repositories**
@@ -21,41 +24,23 @@ This repository contains two submodules pointing to other git repos for code tha
     git submodule init
     git submodule update
 
-  
+**Python Requirements**
 
-  
+This repository requires the python requests module to interact with the Code Insight REST APIs.  To install this as well as the the modules it depends on the [requirements.txt](requirements.txt) file has been supplied and can be used as follows.
+
+    pip install -r requirements.txt
+
 
 ## Usage
 
-  
-
-  
-
 This report is executed directly from within Revenera's Code Insight product. From the summary page of each Code Insight project it is possible to *generate* the **Project Inventory Report** via the Custom Report Framework. Once this report is selected the second project for comparision can be selected
-
-  
-
-  
 
 The Code Insight Custom Report Framework will provide the following to the custom report when initiated:
 
-  
-
-  
-
 - Project ID
-
-  
-
 - Report ID
-
-  
-
 - Authorization Token
-
-  
-
-  
+ 
 
 For this example report these three items are passed on to a batch or sh file which will in turn execute a python script. This script will then:
 
@@ -68,42 +53,22 @@ For this example report these three items are passed on to a batch or sh file wh
 - Upload this combined zip file to Code Insight via REST API
 - Delete the report artifacts that were created as the script ran
 
+
+
 ### Registering the Report
 
-  
-
-  
 
 Prior to being able to call the script directly from within Code Insight it must be registered. The registration.py file can be used to directly register the report once the contents of this repository have been copied into the custom_report_script folder at the base Code Insight installation directory.
 
-  
-
-  
-
 To register this report:
-
-  
 
     python registration.py -reg
 
-  
-
-  
 
 To unregister this report:
 
     python registration.py -unreg
 
-
-
-  
-
-  
-
 ## License
-
-  
-
-  
 
 [MIT](LICENSE.TXT)
