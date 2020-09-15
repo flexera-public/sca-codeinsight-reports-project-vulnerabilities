@@ -30,6 +30,13 @@ This repository requires the python requests module to interact with the Code In
 
     pip install -r requirements.txt
 
+## Required Configuration
+
+There are two locations that require updates to provide the report scripts details about the host system.
+
+The create_report.sh or create_report.bat file contains a **baseURL** value that should be updated to allow for project and inventory links to point to the correct system. 
+
+For registraion purpsoses update the **baseURL** and **adminAuthToken** values within [registraion.py](registraion.py) to reflect the correct values to allow the report itself to be registerd on the Code Insight server.
 
 ## Usage
 
