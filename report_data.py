@@ -99,6 +99,8 @@ def get_vulnerability_summary(vulnerabilities):
     numNoneVulnerabilities = 0
     vulnerabilityData = {}
 
+    numTotalVulnerabilities = len(vulnerabilities)
+
     for vulnerability in vulnerabilities:
 
         vulnerabilityCvssV3Severity = vulnerability["vulnerabilityCvssV3Severity"]
@@ -118,6 +120,7 @@ def get_vulnerability_summary(vulnerabilities):
         else:
             logger.error("Unknown vulnerability severity: %s" %vulnerabilityCvssV3Severity)
 
+    vulnerabilityData["numTotalVulnerabilities"] = numTotalVulnerabilities
     vulnerabilityData["numCriticalVulnerabilities"] = numCriticalVulnerabilities
     vulnerabilityData["numHighVulnerabilities"] = numHighVulnerabilities
     vulnerabilityData["numMediumVulnerabilities"] = numMediumVulnerabilities

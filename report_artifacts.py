@@ -176,6 +176,7 @@ def generate_html_report(reportData):
 
         logger.debug("Reporting for inventory item %s" %inventoryItem)
 
+        numTotalVulnerabilities = 0
         numCriticalVulnerabilities = 0
         numHighVulnerabilities = 0
         numMediumVulnerabilities = 0
@@ -183,6 +184,7 @@ def generate_html_report(reportData):
         numNoneVulnerabilities = 0
 
         try:
+            numTotalVulnerabilities = vulnerabilityData["numTotalVulnerabilities"]
             numCriticalVulnerabilities = vulnerabilityData["numCriticalVulnerabilities"]
             numHighVulnerabilities = vulnerabilityData["numHighVulnerabilities"]
             numMediumVulnerabilities = vulnerabilityData["numMediumVulnerabilities"]
@@ -215,7 +217,10 @@ def generate_html_report(reportData):
         html_ptr.write("            <td class='text-center text-nowrap' data-sort='%s' >\n" %numCriticalVulnerabilities)
         
         # Write in single line to remove spaces between btn spans
-        html_ptr.write("                <span class='btn btn-critical'>%s</span><span class='btn btn-high'>%s</span><span class='btn btn-medium'>%s</span><span class='btn btn-low'>%s</span><span class='btn btn-none'>%s</span>\n" %(numCriticalVulnerabilities,numHighVulnerabilities,numMediumVulnerabilities, numLowVulnerabilities, numNoneVulnerabilities))
+        if numTotalVulnerabilities > 0:
+            html_ptr.write("                <span class='btn btn-critical'>%s</span><span class='btn btn-high'>%s</span><span class='btn btn-medium'>%s</span><span class='btn btn-low'>%s</span><span class='btn btn-none'>%s</span>\n" %(numCriticalVulnerabilities,numHighVulnerabilities,numMediumVulnerabilities, numLowVulnerabilities, numNoneVulnerabilities))
+        else:
+            html_ptr.write("                <span class='btn btn-no-vulns'>0</span>\n")
 
         if inventoryReviewStatus == "Approved":
             html_ptr.write("            <td class='text-left text-nowrap' style='color:green;'><img src='data:image/png;base64, %s' width='15px' height='15px'> %s</td>\n" %(encodedStatusApprovedIcon.decode('utf-8'), inventoryReviewStatus))
