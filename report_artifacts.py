@@ -252,7 +252,7 @@ def generate_html_report(reportData):
     html_ptr.write("<hr class='small'>\n") 
     html_ptr.write("<div class='report-footer' style=\"height:35px;\">\n")
     html_ptr.write("    <div style=\"float:left\">\n")
-    html_ptr.write("        &copy; 2020 Revenera.\n")
+    html_ptr.write("        &copy; 2020 Flexera.\n")
     html_ptr.write("    </div>\n")
     html_ptr.write("    <div style=\"float:right\">\n")
     html_ptr.write("        Generated on %s\n" %now)
