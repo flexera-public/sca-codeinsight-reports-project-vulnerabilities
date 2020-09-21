@@ -196,7 +196,7 @@ def generate_html_report(reportData):
         html_ptr.write("        <tr> \n")
 
 
-        html_ptr.write("            <td class='text-left'><a href='%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s'>%s</a></td>\n" %(baseURL, projectID, inventoryID, inventoryItem))
+        html_ptr.write("            <td class='text-left'><a href='%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s' target='_blank'>%s</a></td>\n" %(baseURL, projectID, inventoryID, inventoryItem))
  
 
         if inventoryPriority == "High":
@@ -211,9 +211,9 @@ def generate_html_report(reportData):
             html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(inventoryPriority))
 
         
-        html_ptr.write("            <td class='text-left'><a href='%s'>%s</a></td>\n" %(componentUrl, componentName))
+        html_ptr.write("            <td class='text-left'><a href='%s' target='_blank'>%s</a></td>\n" %(componentUrl, componentName))
         html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentVersionName))
-        html_ptr.write("            <td class='text-left'><a href='%s'>%s</a></td>\n" %(selectedLicenseUrl, selectedLicenseName))
+        html_ptr.write("            <td class='text-left'><a href='%s' target='_blank'>%s</a></td>\n" %(selectedLicenseUrl, selectedLicenseName))
         html_ptr.write("            <td class='text-center text-nowrap' data-sort='%s' >\n" %numCriticalVulnerabilities)
         
         # Write in single line to remove spaces between btn spans
