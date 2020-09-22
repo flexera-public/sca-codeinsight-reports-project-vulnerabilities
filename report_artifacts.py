@@ -218,13 +218,13 @@ def generate_html_report(reportData):
         
         # Write in single line to remove spaces between btn spans
         if numTotalVulnerabilities > 0:
-            html_ptr.write("                <span class='btn btn-critical'>%s</span>\n" %(numCriticalVulnerabilities))
-            html_ptr.write("                <span class='btn btn-high'>%s</span>\n" %(numHighVulnerabilities))
-            html_ptr.write("                <span class='btn btn-medium'>%s</span>\n" %(numMediumVulnerabilities))
-            html_ptr.write("                <span class='btn btn-low'>%s</span>\n" %(numLowVulnerabilities))
-            html_ptr.write("                <span class='btn btn-none'>%s</span>\n" %(numNoneVulnerabilities))
+            html_ptr.write("                <span class='btn btn-vuln btn-critical'>%s</span>\n" %(numCriticalVulnerabilities))
+            html_ptr.write("                <span class='btn btn-vuln btn-high'>%s</span>\n" %(numHighVulnerabilities))
+            html_ptr.write("                <span class='btn btn-vuln btn-medium'>%s</span>\n" %(numMediumVulnerabilities))
+            html_ptr.write("                <span class='btn btn-vuln btn-low'>%s</span>\n" %(numLowVulnerabilities))
+            html_ptr.write("                <span class='btn btn-vuln btn-none'>%s</span>\n" %(numNoneVulnerabilities))
         else:
-            html_ptr.write("                <span class='btn btn-no-vulns'>None</span>\n")
+            html_ptr.write("                <span class='btn btn-vuln btn-no-vulns'>None</span>\n")
 
         if inventoryReviewStatus == "Approved":
             html_ptr.write("            <td class='text-left text-nowrap' style='color:green;'><img src='data:image/png;base64, %s' width='15px' height='15px' style='margin-top: -2px;'> %s</td>\n" %(encodedStatusApprovedIcon.decode('utf-8'), inventoryReviewStatus))
