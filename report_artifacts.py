@@ -44,7 +44,7 @@ def generate_html_report(reportData):
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
-    logoImageFile =  os.path.join(scriptDirectory, "html-assets/images/logo.svg")
+    logoImageFile =  os.path.join(scriptDirectory, "html-assets/images/logo_reversed.svg")
     iconFile =  os.path.join(scriptDirectory, "html-assets/images/favicon-revenera.ico")
     statusApprovedIcon = os.path.join(scriptDirectory, "html-assets/images/status_approved_selected.png")
     statusRejectedIcon = os.path.join(scriptDirectory, "html-assets/images/status_rejected_selected.png")
@@ -118,21 +118,15 @@ def generate_html_report(reportData):
     html_ptr.write("<div class=\"container-fluid\">\n")
 
     #---------------------------------------------------------------------------------------------------
-    # Create a common top banner
+    # Report Header
     #---------------------------------------------------------------------------------------------------
-    # Put the image and date in a table for organizational purposes
-
     html_ptr.write("<!-- BEGIN HEADER -->\n")
-    html_ptr.write("<div style='height:35px;'>\n")
-    html_ptr.write("    <div style='float:left;'>\n")
-    html_ptr.write("    	<img src='data:image/svg+xml;base64,{}' style='width: 400px;'>\n".format(encodedLogoImage.decode('utf-8')))
-    html_ptr.write("    </div>\n")
-    html_ptr.write("    <div style='float:right' class='report-title'>\n")
-    html_ptr.write("         %s\n" %reportName.upper()) 
-    html_ptr.write("    </div>\n")
+    html_ptr.write("<div class='header'>\n")
+    html_ptr.write("  <div class='logo'>\n")
+    html_ptr.write("    <img src='data:image/svg+xml;base64,{}' style='width: 400px;'>\n".format(encodedLogoImage.decode('utf-8')))
+    html_ptr.write("  </div>\n")
+    html_ptr.write("<div class='report-title'>%s</div>\n" %reportName)
     html_ptr.write("</div>\n")
-    html_ptr.write("        <p>\n")  
-    html_ptr.write("        <hr class='small'>\n")
     html_ptr.write("<!-- END HEADER -->\n")
 
     #---------------------------------------------------------------------------------------------------
@@ -248,17 +242,12 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     # Report Footer
     #---------------------------------------------------------------------------------------------------
-    html_ptr.write("<!-- BEGIN FOOTER -->\n")  
-    html_ptr.write("<hr class='small'>\n") 
-    html_ptr.write("<div class='report-footer' style=\"height:35px;\">\n")
-    html_ptr.write("    <div style=\"float:left\">\n")
-    html_ptr.write("        &copy; 2020 Flexera.\n")
-    html_ptr.write("    </div>\n")
-    html_ptr.write("    <div style=\"float:right\">\n")
-    html_ptr.write("        Generated on %s\n" %now)
-    html_ptr.write("    </div> \n")
-    html_ptr.write("</div> \n")
-    html_ptr.write("<!-- END FOOTER -->\n")  
+    html_ptr.write("<!-- BEGIN FOOTER -->\n")
+    html_ptr.write("<div class='report-footer'>\n")
+    html_ptr.write("  <div style='float:left'>&copy; 2020 Revenera</div>\n")
+    html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %now)
+    html_ptr.write("</div>\n")
+    html_ptr.write("<!-- END FOOTER -->\n")   
 
     html_ptr.write("</div>\n")
 
