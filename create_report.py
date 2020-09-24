@@ -61,8 +61,6 @@ def main():
 	logger.debug("    projectID:  %s" %projectID)	
 	logger.debug("    reportID:   %s" %reportID)	
 	logger.debug("    baseURL:  %s" %baseURL)	
-	logger.debug("    authToken:  %s" %authToken)
-
 
 	try:
 		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName)
