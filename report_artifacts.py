@@ -141,7 +141,7 @@ def generate_html_report(reportData):
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
     html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n") 
-    html_ptr.write("            <th style='width: 5%' class='text-center'>SCORE</th>\n")
+    html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.0</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SEVERITY</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SOURCE</th>\n")
     html_ptr.write("            <th style='width: 50%' class='text-center'>DESCRIPTION</th>\n") 
@@ -182,7 +182,7 @@ def generate_html_report(reportData):
         
         html_ptr.write("</td>\n")
 
-        html_ptr.write("<td style=\"vertical-align:middle\" data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityScore, vulnerabilitySeverity.lower(), vulnerabilityScore))
+        html_ptr.write("<td style=\"vertical-align:middle\" class='text-center' data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityScore, vulnerabilitySeverity.lower(), vulnerabilityScore))
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySeverity)
 
         
