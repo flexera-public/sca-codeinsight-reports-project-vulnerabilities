@@ -41,7 +41,7 @@ def generate_html_report(reportData):
     projectName  = reportData["projectName"]
     projectID  = reportData["projectID"]
     baseURL  = reportData["baseURL"]
-    vulnerabilityData = reportData["vulnerabilityData"]
+    vulnerabilityDetails = reportData["vulnerabilityDetails"]
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
@@ -63,9 +63,6 @@ def generate_html_report(reportData):
     #  Encode the image files
     encodedLogoImage = encodeImage(logoImageFile)
     encodedfaviconImage = encodeImage(iconFile)
-    encodedStatusApprovedIcon = encodeImage(statusApprovedIcon)
-    encodedStatusRejectedIcon = encodeImage(statusRejectedIcon)
-    encodedStatusDraftIcon = encodeImage(statusDraftIcon)
 
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
@@ -152,37 +149,44 @@ def generate_html_report(reportData):
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
 
-    for inventoryID in reportData["vulnerabilityData"]:
+    for vulnerability in reportData["vulnerabilityDetails"]:
 
-        componentName = reportData["vulnerabilityData"][inventoryID]["componentName"]
-        componentVersionName = reportData["vulnerabilityData"][inventoryID]["componentVersionName"]
+        vulnerabilityDescription = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityDescription"]
+        vulnerabilitySource = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySource"]
+        vulnerabilityUrl = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityUrl"]
+        vulnerabilitySeverity = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySeverity"]
+        vulnerabilityScore = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityScore"]
 
-        inventoryItemLink = reportData["baseURL"] + '''/codeinsight/FNCI#myprojectdetails/?id=''' + reportData["projectID"] + '''&tab=projectInventory&pinv=''' + str(inventoryID)
+        if vulnerabilityScore == "N/A":
+                vulnerabilityScore = "-"
 
-        for vulnerabilityName in reportData["vulnerabilityData"][inventoryID]["vulnerabilities"]:
+        
+        html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityUrl, vulnerability))
 
-            vulnerabilityDescription = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][0]
-            vulnerabilitySource = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][1]
-            vulnerabilityUrl = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][2]
-            vulnerabilityCvssV2Score = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][3]
-            vulnerabilityCvssV2Severity = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][4]
-            vulnerabilityCvssV3Score = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][5]
 
-            if vulnerabilityCvssV3Score == "N/A":
-                vulnerabilityCvssV3Score = "-"
-            
-            vulnerabilityCvssV3Severity = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][6]
+        affectedComponents = reportData["vulnerabilityDetails"][vulnerability]["affectedComponents"]
+        html_ptr.write("<td style=\"vertical-align:middle\">")
+       
+        # sort by componentName and then version
+        for affectedComponent in sorted(affectedComponents, key=lambda x: (x[1], x[2])):
+            inventoryID = affectedComponent[0]
+            componentName = affectedComponent[1]
+            componentVersionName = affectedComponent[2]
 
-            html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityUrl, vulnerabilityName))
-            html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s - %s</a></td>\n" %(inventoryItemLink, componentName, componentVersionName))
-            html_ptr.write("<td style=\"vertical-align:middle\" data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityCvssV3Score, vulnerabilityCvssV3Severity.lower(), vulnerabilityCvssV3Score))
-            html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityCvssV3Severity)
+            inventoryItemLink = reportData["baseURL"] + '''/codeinsight/FNCI#myprojectdetails/?id=''' + reportData["projectID"] + '''&tab=projectInventory&pinv=''' + str(inventoryID)
 
-            
-            html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
-            html_ptr.write("<td style=\"vertical-align:middle\">%s </div> </td>\n" %vulnerabilityDescription)
+            html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a><br>\n" %(inventoryItemLink, componentName, componentVersionName))       
+        
+        html_ptr.write("</td>\n")
 
-            html_ptr.write("</tr>\n")
+        html_ptr.write("<td style=\"vertical-align:middle\" data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityScore, vulnerabilitySeverity.lower(), vulnerabilityScore))
+        html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySeverity)
+
+        
+        html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
+        html_ptr.write("<td style=\"vertical-align:middle\">%s </div> </td>\n" %vulnerabilityDescription)
+
+        html_ptr.write("</tr>\n")
 
 
     html_ptr.write("    </tbody>\n")
