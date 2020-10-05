@@ -1,6 +1,6 @@
-# sca-codeinsight-reports-project-inventory
+# sca-codeinsight-reports-project-vulnerabilities
 
-The sca-codeinsight-reports-project-inventory repository is a example report for Revenera's Code Insight product. This report allows a user to get a quick high level summary of the inventory items within a project
+The sca-codeinsight-reports-project-vulnerability report is a example report for Revenera's Code Insight product. This report allows a user to get a project level view based on the vulnerabilities associated to the inventory items.
 
 This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables](https://datatables.net/) for the creation of the report file
  
@@ -19,7 +19,7 @@ This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables]
 
 **Submodule Repositories**
 
-This repository contains two submodules pointing to other git repos for code that can be in common to multiple projects. After the initial clone of sca-codeinsight-reports-project-inventory you will need to enter the cloned directory, link and pull down the necessary code via
+This repository contains two submodules pointing to other git repos for code that can be in common to multiple projects. After the initial clone of sca-codeinsight-reports-project-vulnerability you will need to enter the cloned directory, link and pull down the necessary code via
 
     git submodule init
     git submodule update
@@ -40,7 +40,7 @@ For registraion purpsoses update the **baseURL** and **adminAuthToken** values w
 
 ## Usage
 
-This report is executed directly from within Revenera's Code Insight product. From the summary page of each Code Insight project it is possible to *generate* the **Project Inventory Report** via the Custom Report Framework. Once this report is selected the second project for comparision can be selected
+This report is executed directly from within Revenera's Code Insight product. From the summary page of each Code Insight project it is possible to *generate* the **Project Vulnerability Report** via the Custom Report Framework. Once this report is selected the second project for comparision can be selected
 
 The Code Insight Custom Report Framework will provide the following to the custom report when initiated:
 
