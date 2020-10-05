@@ -45,7 +45,7 @@ parser.add_argument("-baseURL", "--baseURL", help="Code Insight Core Server Prot
 #----------------------------------------------------------------------#
 def main():
 
-	reportName = "Project Inventory Report"
+	reportName = "Project Vulnerability Report"
 
 	logger.info("Creating %s - %s" %(reportName, _version.__version__))
 	print("Creating %s - %s" %(reportName, _version.__version__))
@@ -77,6 +77,8 @@ def main():
 		print("Error encountered while creating report artifacts.  Please see log for details")
 		logger.error("Error encountered while creating report artifacts.")
 		return -1
+
+	sys.exit()
 
 	#########################################################
 	# Create zip file to be uploaded to Code Insight
