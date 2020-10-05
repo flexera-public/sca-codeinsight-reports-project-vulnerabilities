@@ -132,7 +132,7 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN BODY -->\n")  
 
-    html_ptr.write("<table id='inventoryData' class='table table-hover table-sm row-border' style='width:90%'>\n")
+    html_ptr.write("<table id='vulnerabilityData' class='table table-hover table-sm row-border' style='width:90%'>\n")
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
@@ -152,6 +152,9 @@ def generate_html_report(reportData):
     for vulnerability in reportData["vulnerabilityDetails"]:
 
         vulnerabilityDescription = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityDescription"]
+        # Just in case there are any "tags" that need to be cleaned up
+        vulnerabilityDescription = vulnerabilityDescription.replace('<', '&lt').replace('>', '&gt')
+
         vulnerabilitySource = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySource"]
         vulnerabilityUrl = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityUrl"]
         vulnerabilitySeverity = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySeverity"]
@@ -184,7 +187,7 @@ def generate_html_report(reportData):
 
         
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
-        html_ptr.write("<td style=\"vertical-align:middle\">%s </div> </td>\n" %vulnerabilityDescription)
+        html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityDescription)
 
         html_ptr.write("</tr>\n")
 
@@ -222,15 +225,14 @@ def generate_html_report(reportData):
 
     html_ptr.write('''
         <script>
-            var table = $('#inventoryData').DataTable({"order": [[ 2, "desc" ]]});
-
-            $(document).ready(function() {
-                table;
-            } );
+            $(document).ready(function (){
+                var table = $('#vulnerabilityData').DataTable({
+                    "order": [[ 2, "desc" ]],
+                    "lengthMenu": [ [25, 50, 100, -1], [25, 50, 100, "All"] ],
+                });
+            });
 
         </script>
-
-
         ''')
 
 
