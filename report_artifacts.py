@@ -36,11 +36,12 @@ def create_report_artifacts(reportData):
 def generate_html_report(reportData):
     logger.info("    Entering generate_html_report")
 
+
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
     projectID  = reportData["projectID"]
     baseURL  = reportData["baseURL"]
-    inventoryData = reportData["inventoryData"]
+    vulnerabilityData = reportData["vulnerabilityData"]
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
@@ -141,97 +142,49 @@ def generate_html_report(reportData):
     html_ptr.write("            <th colspan='7' class='text-center'><h4>%s</h4></th>\n" %projectName) 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
-    html_ptr.write("            <th style='width: 25%' class='text-center'>INVENTORY ITEM</th>\n") 
-    html_ptr.write("            <th style='width: 10%' class='text-center'>PRIORITY</th>\n") 
-    html_ptr.write("            <th style='width: 15%' class='text-center'>COMPONENT</th>\n")
-    html_ptr.write("            <th style='width: 8%' class='text-center'>VERSION</th>\n")
-    html_ptr.write("            <th style='width: 10%' class='text-center'>LICENSE</th>\n") 
-    html_ptr.write("            <th style='width: 18%' class='text-center'>VULNERABILITIES</th>\n")
-    html_ptr.write("            <th style='width: 14%' class='text-center'>REVIEW STATUS</th>\n")
+    html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
+    html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n") 
+    html_ptr.write("            <th style='width: 5%' class='text-center'>SCORE</th>\n")
+    html_ptr.write("            <th style='width: 5%' class='text-center'>SEVERITY</th>\n")
+    html_ptr.write("            <th style='width: 5%' class='text-center'>SOURCE</th>\n")
+    html_ptr.write("            <th style='width: 50%' class='text-center'>DESCRIPTION</th>\n") 
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
 
+    for inventoryID in reportData["vulnerabilityData"]:
 
-    ######################################################
-    # Cycle through the inventory to create the 
-    # table with the results
-    for inventoryItem in sorted(inventoryData):
-        componentName = inventoryData[inventoryItem]["componentName"]
-        componentVersionName = inventoryData[inventoryItem]["componentVersionName"]
-        inventoryPriority = inventoryData[inventoryItem]["inventoryPriority"]
-        selectedLicenseName = inventoryData[inventoryItem]["selectedLicenseName"]
-        selectedLicensePriority = inventoryData[inventoryItem]["selectedLicensePriority"]
-        vulnerabilityData = inventoryData[inventoryItem]["vulnerabilityData"]
-        componentUrl = inventoryData[inventoryItem]["componentUrl"]
-        selectedLicenseUrl = inventoryData[inventoryItem]["selectedLicenseUrl"]
-        inventoryID = inventoryData[inventoryItem]["inventoryID"]
-        inventoryReviewStatus = inventoryData[inventoryItem]["inventoryReviewStatus"]
+        componentName = reportData["vulnerabilityData"][inventoryID]["componentName"]
+        componentVersionName = reportData["vulnerabilityData"][inventoryID]["componentVersionName"]
 
-        logger.debug("Reporting for inventory item %s" %inventoryItem)
+        inventoryItemLink = reportData["baseURL"] + '''/codeinsight/FNCI#myprojectdetails/?id=''' + reportData["projectID"] + '''&tab=projectInventory&pinv=''' + str(inventoryID)
 
-        numTotalVulnerabilities = 0
-        numCriticalVulnerabilities = 0
-        numHighVulnerabilities = 0
-        numMediumVulnerabilities = 0
-        numLowVulnerabilities = 0
-        numNoneVulnerabilities = 0
+        for vulnerabilityName in reportData["vulnerabilityData"][inventoryID]["vulnerabilities"]:
 
-        try:
-            numTotalVulnerabilities = vulnerabilityData["numTotalVulnerabilities"]
-            numCriticalVulnerabilities = vulnerabilityData["numCriticalVulnerabilities"]
-            numHighVulnerabilities = vulnerabilityData["numHighVulnerabilities"]
-            numMediumVulnerabilities = vulnerabilityData["numMediumVulnerabilities"]
-            numLowVulnerabilities = vulnerabilityData["numLowVulnerabilities"]
-            numNoneVulnerabilities = vulnerabilityData["numNoneVulnerabilities"]
-        except:
-            logger.debug("    No vulnerability data")
+            vulnerabilityDescription = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][0]
+            vulnerabilitySource = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][1]
+            vulnerabilityUrl = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][2]
+            vulnerabilityCvssV2Score = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][3]
+            vulnerabilityCvssV2Severity = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][4]
+            vulnerabilityCvssV3Score = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][5]
 
-        html_ptr.write("        <tr> \n")
+            if vulnerabilityCvssV3Score == "N/A":
+                vulnerabilityCvssV3Score = "-"
+            
+            vulnerabilityCvssV3Severity = reportData["vulnerabilityData"][inventoryID]["vulnerabilities"][vulnerabilityName][6]
+
+            html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityUrl, vulnerabilityName))
+            html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s - %s</a></td>\n" %(inventoryItemLink, componentName, componentVersionName))
+            html_ptr.write("<td style=\"vertical-align:middle\" data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityCvssV3Score, vulnerabilityCvssV3Severity.lower(), vulnerabilityCvssV3Score))
+            html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityCvssV3Severity)
+
+            
+            html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
+            html_ptr.write("<td style=\"vertical-align:middle\">%s </div> </td>\n" %vulnerabilityDescription)
+
+            html_ptr.write("</tr>\n")
 
 
-        html_ptr.write("            <td class='text-left'><a href='%s/codeinsight/FNCI#myprojectdetails/?id=%s&tab=projectInventory&pinv=%s' target='_blank'>%s</a></td>\n" %(baseURL, projectID, inventoryID, inventoryItem))
- 
-
-        if inventoryPriority == "High":
-            html_ptr.write("            <td data-sort='4' class='text-left text-nowrap'><span class='dot dot-red'></span>P1 - %s</td>\n" %(inventoryPriority))
-        elif inventoryPriority == "Medium":
-            html_ptr.write("            <td data-sort='3' class='text-left text-nowrap'><span class='dot dot-yellow'></span>P2 - %s</td>\n" %(inventoryPriority))
-        elif inventoryPriority == "Low":
-            html_ptr.write("            <td data-sort='2' class='text-left text-nowrap'><span class='dot dot-green'></span>P3 - %s</td>\n" %(inventoryPriority))
-        elif inventoryPriority == "Other":
-            html_ptr.write("            <td data-sort='1' class='text-left text-nowrap'><span class='dot dot-blue'></span>P4 - %s</td>\n" %(inventoryPriority))
-        else:
-            html_ptr.write("            <td class='text-left text-nowrap'><span class='dot dot-gray'></span>%s</td>\n" %(inventoryPriority))
-
-        
-        html_ptr.write("            <td class='text-left'><a href='%s' target='_blank'>%s</a></td>\n" %(componentUrl, componentName))
-        html_ptr.write("            <td class='text-left'>%s</td>\n" %(componentVersionName))
-        html_ptr.write("            <td class='text-left'><a href='%s' target='_blank'>%s</a></td>\n" %(selectedLicenseUrl, selectedLicenseName))
-        html_ptr.write("            <td class='text-center text-nowrap' data-sort='%s' >\n" %numCriticalVulnerabilities)
-        
-        # Write in single line to remove spaces between btn spans
-        if numTotalVulnerabilities > 0:
-            html_ptr.write("                <span class='btn btn-vuln btn-critical'>%s</span>\n" %(numCriticalVulnerabilities))
-            html_ptr.write("                <span class='btn btn-vuln btn-high'>%s</span>\n" %(numHighVulnerabilities))
-            html_ptr.write("                <span class='btn btn-vuln btn-medium'>%s</span>\n" %(numMediumVulnerabilities))
-            html_ptr.write("                <span class='btn btn-vuln btn-low'>%s</span>\n" %(numLowVulnerabilities))
-            html_ptr.write("                <span class='btn btn-vuln btn-none'>%s</span>\n" %(numNoneVulnerabilities))
-        else:
-            html_ptr.write("                <span class='btn btn-vuln btn-no-vulns'>None</span>\n")
-
-        if inventoryReviewStatus == "Approved":
-            html_ptr.write("            <td class='text-left text-nowrap' style='color:green;'><img src='data:image/png;base64, %s' width='15px' height='15px' style='margin-top: -2px;'> %s</td>\n" %(encodedStatusApprovedIcon.decode('utf-8'), inventoryReviewStatus))
-        elif inventoryReviewStatus == "Rejected":
-            html_ptr.write("            <td class='text-left text-nowrap' style='color:red;'><img src='data:image/png;base64, %s' width='15px' height='15px' style='margin-top: -2px;'> %s</td>\n" %(encodedStatusRejectedIcon.decode('utf-8'), inventoryReviewStatus))
-        elif inventoryReviewStatus == "Draft":
-            html_ptr.write("            <td class='text-left text-nowrap' style='color:gray;'><img src='data:image/png;base64, %s' width='15px' height='15px' style='margin-top: -2px;'> %s</td>\n" %(encodedStatusDraftIcon.decode('utf-8'), inventoryReviewStatus))
-        else:
-            html_ptr.write("            <td class='text-left text-nowrap'>%s</td>\n" %(inventoryReviewStatus))
-
-        html_ptr.write("            </td>\n")
-
-        html_ptr.write("        </tr>\n") 
     html_ptr.write("    </tbody>\n")
 
 
@@ -244,7 +197,7 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN FOOTER -->\n")
     html_ptr.write("<div class='report-footer'>\n")
-    html_ptr.write("  <div style='float:left'>&copy; 2020 Revenera</div>\n")
+    html_ptr.write("  <div style='float:left'>&copy; 2020 Flexera</div>\n")
     html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %now)
     html_ptr.write("</div>\n")
     html_ptr.write("<!-- END FOOTER -->\n")   
@@ -265,7 +218,7 @@ def generate_html_report(reportData):
 
     html_ptr.write('''
         <script>
-            var table = $('#inventoryData').DataTable();
+            var table = $('#inventoryData').DataTable({"order": [[ 2, "desc" ]]});
 
             $(document).ready(function() {
                 table;
