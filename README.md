@@ -14,6 +14,7 @@ This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables]
 |Repository Tag|Minimum Code Insight Release  |
 |--|--|
 |1.0.x |2020R3  |
+|1.1.x |2020R4  |
 
 
 
