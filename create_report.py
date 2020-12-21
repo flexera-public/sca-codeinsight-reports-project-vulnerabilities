@@ -111,9 +111,10 @@ def main():
 #---------------------------------------------------------------------#
 def create_report_zipfile(reportOutputs, reportName):
 	logger.info("Entering create_report_zipfile")
+	reportName = reportName.replace(" ", "_")
 
 	# create a ZipFile object
-	allFormatZipFile = reportName + ".zip"
+	allFormatZipFile = reportName.replace(" ", "_") + ".zip"
 	allFormatsZip = zipfile.ZipFile(allFormatZipFile, 'w', zipfile.ZIP_DEFLATED)
 
 	logger.debug("     	  Create downloadable archive: %s" %allFormatZipFile)
