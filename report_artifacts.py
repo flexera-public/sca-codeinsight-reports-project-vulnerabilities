@@ -39,9 +39,10 @@ def generate_html_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
-    projectID  = reportData["projectID"]
-    baseURL  = reportData["baseURL"]
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
+    projectList = reportData["projectList"]
+    projectSummaryData = reportData["projectSummaryData"]
+    applicationSummaryData = reportData["applicationSummaryData"]
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
@@ -132,11 +133,84 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN BODY -->\n")  
 
+    #######################################################################
+    #  Create table to hold the application summary charts.
+    #  js script itself is added later
+    html_ptr.write("<table id='applicationSummary' class='table' style='width:90%'>\n")
+    html_ptr.write("    <thead>\n")
+    html_ptr.write("        <tr>\n")
+    if len(projectList) > 1:
+        html_ptr.write("            <th colspan='8' class='text-center'><h4>Application Summary</h4></th>\n") 
+    else:
+        html_ptr.write("            <th colspan='8' class='text-center'><h4>%s Summary</h4></th>\n" %projectName) 
+    html_ptr.write("        </tr>\n") 
+    html_ptr.write("    </thead>\n")
+    html_ptr.write("</table>\n")
+    
+    html_ptr.write("<div class='container'>\n")
+    html_ptr.write("    <div class='row'>\n")
+    html_ptr.write("        <div class='col-sm'>\n")
+    html_ptr.write("            <canvas id='applicationVulnerabilities'></canvas>\n")
+    html_ptr.write("         </div>\n")
+    html_ptr.write("    </div>\n")
+    html_ptr.write("</div>\n")
+
+
+    # If there is some sort of hierarchy then show specific project summeries
+    if len(projectList) > 1:
+        
+        # How much space to we need to give each canvas
+        # based on the amount of projects in the hierarchy
+        canvasHeight = len(projectList) * 20   
+
+        # We need a minimum size to cover font as well
+        if canvasHeight < 180:
+            canvasHeight = 180
+        # The entire column needs to the vulnerability summary
+        columnHeight = canvasHeight
+
+        html_ptr.write("<hr class='small'>\n")
+
+        #######################################################################
+        #  Create table to hold the project summary charts.
+        #  js script itself is added later
+
+        html_ptr.write("<table id='projectSummary' class='table' style='width:90%'>\n")
+        html_ptr.write("    <thead>\n")
+        html_ptr.write("        <tr>\n")
+        html_ptr.write("            <th colspan='8' class='text-center'><h4>Project Summaries</h4></th>\n") 
+        html_ptr.write("        </tr>\n") 
+        html_ptr.write("    </thead>\n")
+        html_ptr.write("</table>\n")
+
+        html_ptr.write("<div class='container'>\n")
+        html_ptr.write("    <div class='row'>\n")
+
+        html_ptr.write("        <div class='col-sm'>\n")
+        html_ptr.write("<h6 class='gray' style='padding-top: 10px;'><center>Project Hierarchy</center></h6>") 
+        html_ptr.write("            <div id='project_hierarchy'></div>\n")
+        
+        html_ptr.write("        </div>\n")
+        html_ptr.write("        <div class='col-sm' style='height: %spx;'>\n" %(columnHeight) )
+        html_ptr.write("            <div class='col-sm' style='height: %spx'>\n"%(canvasHeight))
+        html_ptr.write("               <canvas id='projectVulnerabilities'></canvas>\n")
+        html_ptr.write("             </div>\n")
+        html_ptr.write("        </div>\n")
+        html_ptr.write("    </div>\n")
+        html_ptr.write("</div>\n")
+
+        html_ptr.write("<hr class='small'>")
+
+
+
+
+
+
     html_ptr.write("<table id='vulnerabilityData' class='table table-hover table-sm row-border' style='width:90%'>\n")
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    html_ptr.write("            <th colspan='7' class='text-center'><h4>%s</h4></th>\n" %projectName) 
+    html_ptr.write("            <th colspan='7' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
@@ -168,6 +242,8 @@ def generate_html_report(reportData):
 
 
         affectedComponents = reportData["vulnerabilityDetails"][vulnerability]["affectedComponents"]
+        
+        
         html_ptr.write("<td style=\"vertical-align:middle\">")
        
         # sort by componentName and then version
@@ -175,10 +251,12 @@ def generate_html_report(reportData):
             inventoryID = affectedComponent[0]
             componentName = affectedComponent[1]
             componentVersionName = affectedComponent[2]
-
-            inventoryItemLink = reportData["baseURL"] + '''/codeinsight/FNCI#myprojectdetails/?id=''' + reportData["projectID"] + '''&tab=projectInventory&pinv=''' + str(inventoryID)
-
-            html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a><br>\n" %(inventoryItemLink, componentName, componentVersionName))       
+            projectName = affectedComponent[3]
+            projectLink = affectedComponent[4]
+            inventoryItemLink = affectedComponent[5]
+            
+            html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a>\n" %(inventoryItemLink, componentName, componentVersionName))
+            html_ptr.write("<a href=\"%s\" target=\"_blank\">  (%s)</a><br>\n" %(projectLink, projectName)) 
         
         html_ptr.write("</td>\n")
 
@@ -219,22 +297,37 @@ def generate_html_report(reportData):
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>  
-    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script> 
+    <script src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.10/jstree.min.js"></script> 
     ''')
 
+    html_ptr.write("<script>\n")
 
     html_ptr.write('''
-        <script>
+
             $(document).ready(function (){
                 var table = $('#vulnerabilityData').DataTable({
                     "order": [[ 2, "desc" ]],
                     "lengthMenu": [ [25, 50, 100, -1], [25, 50, 100, "All"] ],
                 });
             });
-
-        </script>
         ''')
+    
+    # Add the common chartjs config
+    add_default_chart_options(html_ptr)
+    # Add the js for the application summary stacked bar charts
+    generate_application_summary_chart(html_ptr, applicationSummaryData)
 
+    if len(projectList) > 1:
+        # Add the js for the project summary stacked bar charts
+        generate_project_hierarchy_tree(html_ptr, projectList)
+        # Add the js for the project summary stacked bar charts
+        generate_project_summary_charts(html_ptr, projectSummaryData)
+
+
+
+    html_ptr.write("</script>\n")
 
     html_ptr.write("</body>\n") 
     html_ptr.write("</html>\n") 
@@ -257,3 +350,201 @@ def encodeImage(imageFile):
     except:
         logger.error("Unable to open %s" %imageFile)
         raise
+
+#----------------------------------------------------------------------------------------#
+def add_default_chart_options(html_ptr):
+    # Add commont defaults for display charts
+    html_ptr.write('''  
+        var defaultBarChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+            padding: {
+                bottom: 25  //set that fits the best
+            }
+        },
+        tooltips: {
+            enabled: true,
+            yAlign: 'center'
+        },
+        title: {
+            display: true,
+            fontColor: "#323E48"
+        },
+
+        scales: {
+            xAxes: [{
+                ticks: {
+                    beginAtZero:true,
+                    fontSize:11,
+                    fontColor: "#323E48",
+                    precision:0
+
+                },
+                scaleLabel:{
+                    display:false
+                },
+                gridLines: {
+                }, 
+                stacked: true
+            }],
+            yAxes: [{
+                gridLines: {
+                    display:false,
+                    color: "#fff",
+                    zeroLineColor: "#fff",
+                    zeroLineWidth: 0,
+                    fontColor: "#323E48"
+                },
+                ticks: {
+                    fontSize:11,
+                    fontColor: "#323E48"
+                },
+
+                stacked: true
+            }]
+        },
+        legend:{
+            display:false
+        },
+        
+    };  ''')
+
+#----------------------------------------------------------------------------------------#
+def generate_application_summary_chart(html_ptr, applicationSummaryData):
+    logger.info("Entering generate_application_summary_chart")
+
+
+   
+    html_ptr.write(''' 
+    
+    var applicationVulnerabilities= document.getElementById("applicationVulnerabilities");
+    var applicationVulnerabilityChart = new Chart(applicationVulnerabilities, {
+        type: 'horizontalBar',
+        data: {
+            datasets: [{
+                // Critical Vulnerabilities
+                label: 'Critical',
+                data: [%s],
+                backgroundColor: "#400000"
+            },{
+                // High Vulnerabilities
+                label: 'High',
+                data: [%s],
+                backgroundColor: "#C00000"
+            },{
+                // Medium Vulnerabilities
+                label: 'Medium',
+                data: [%s],
+                backgroundColor: "#FFA500"
+            },{
+                // Low Vulnerabilities
+                label: 'Low',
+                data: [%s],
+                backgroundColor: "#FFFF00"
+            },{
+                // N/A Vulnerabilities
+                label: 'N/A',
+                data: [%s],
+                backgroundColor: "#D3D3D3"
+            },
+            ]
+        },
+
+        options: defaultBarChartOptions,
+        
+    });
+
+    applicationVulnerabilityChart.options.tooltips.titleFontSize = 0
+    
+    ''' %(applicationSummaryData["numCriticalVulnerabilities"], applicationSummaryData["numHighVulnerabilities"], applicationSummaryData["numMediumVulnerabilities"], applicationSummaryData["numLowVulnerabilities"], applicationSummaryData["numNoneVulnerabilities"]) )
+    
+
+#----------------------------------------------------------------------------------------#
+def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
+    logger.info("Entering generate_project_hierarchy_tree")
+
+    html_ptr.write('''var hierarchy = [\n''')
+
+    for project in projectHierarchy:
+
+        html_ptr.write('''{
+            'id': '%s', 
+            'parent': '%s', 
+            'text': '%s',
+            'a_attr': {
+                'href': '%s'
+            }
+        },\n'''  %(project["projectID"], project["parent"], project["projectName"], project["projectLink"]))
+
+    html_ptr.write('''\n]''')
+
+    html_ptr.write('''
+
+        $('#project_hierarchy').jstree({ 'core' : {
+            'data' : hierarchy
+        } });
+
+        $('#project_hierarchy').on('ready.jstree', function() {
+            $("#project_hierarchy").jstree("open_all");               
+
+        $("#project_hierarchy").on("click", ".jstree-anchor", function(evt)
+        {
+            var link = $(evt.target).attr("href");
+            window.open(link, '_blank');
+        });
+
+
+        });
+
+    ''' )
+
+
+#----------------------------------------------------------------------------------------#
+def generate_project_summary_charts(html_ptr, projectSummaryData):
+    logger.info("Entering generate_project_summary_charts")
+
+    html_ptr.write(''' 
+    
+    var projectVulnerabilities= document.getElementById("projectVulnerabilities");
+    var projectVulnerabilityChart = new Chart(projectVulnerabilities, {
+        type: 'horizontalBar',
+        data: {
+            labels: %s,
+            datasets: [{
+                // Critical Vulnerabilities
+                label: 'Critical',
+                data: %s,
+                backgroundColor: "#400000"
+            },{
+                // High Vulnerabilities
+                label: 'High',
+                data: %s,
+                backgroundColor: "#C00000"
+            },{
+                // Medium Vulnerabilities
+                label: 'Medium',
+                data: %s,
+                backgroundColor: "#FFA500"
+            },{
+                // Low Vulnerabilities
+                label: 'Low',
+                data: %s,
+                backgroundColor: "#FFFF00"
+            },{
+                // N/A Vulnerabilities
+                label: 'N/A',
+                data: %s,
+                backgroundColor: "#D3D3D3"
+            },
+            ]
+        },
+
+        options: defaultBarChartOptions,
+        
+    });
+    projectVulnerabilityChart.options.title.text = "Vulnerability Summary"
+    
+    ''' %(projectSummaryData["projectNames"], projectSummaryData["numCriticalVulnerabilities"], projectSummaryData["numHighVulnerabilities"], projectSummaryData["numMediumVulnerabilities"], projectSummaryData["numLowVulnerabilities"], projectSummaryData["numNoneVulnerabilities"]) )
+    
+
