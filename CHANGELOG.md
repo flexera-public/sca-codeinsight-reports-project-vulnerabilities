@@ -6,10 +6,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2020-12-21
+### Added
+- Added project heirachy support
+- Added project level vulnerability summary
+- Added application level vulnerability summary
+- Removed spaces from artifact file names
+
 ## [1.1.0] - 2020-12-15
 ### Added
 - Bumped APIs for 2020R4 support
-
 
 ## [1.0.1] - 2020-10-05
 ### Added
