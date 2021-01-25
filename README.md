@@ -16,6 +16,8 @@ This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables]
 |1.0.x |2020R3  |
 |1.1.x |2020R4  |
 |2.0.x |2020R4  |
+|2.1.x |2021R1  |
+
 
 
 

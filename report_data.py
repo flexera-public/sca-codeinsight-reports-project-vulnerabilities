@@ -59,11 +59,11 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName):
             print("No Project Information Returned.")
             return -1
 
-        projectData[projectName]["numCriticalVulnerabilities"] = projectInformation["vulnerabilities"]["CVSS3.0"]["Critical"]
-        projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CVSS3.0"]["High"]
-        projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CVSS3.0"]["Medium"]
-        projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CVSS3.0"]["Low"]
-        projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CVSS3.0"]["None"]
+        projectData[projectName]["numCriticalVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Critical"]
+        projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["High"]
+        projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Medium"]
+        projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Low"]
+        projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["None"]
 
 
         # Grab the full project inventory to get specific vulnerability details
