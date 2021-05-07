@@ -9,6 +9,7 @@ File : report_data.py
 '''
 
 import logging
+from collections import OrderedDict
 import CodeInsight_RESTAPIs.project.get_project_inventory
 import CodeInsight_RESTAPIs.project.get_child_projects
 import CodeInsight_RESTAPIs.project.get_project_information
@@ -101,6 +102,10 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName):
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink])
 
+                    # Sort the vulnerability dict by score (high to low)
+                    sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
+
+
                 else:
                     logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
             except:
@@ -115,7 +120,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName):
     reportData = {}
     reportData["reportName"] = reportName
     reportData["projectName"] = projectHierarchy["name"]
-    reportData["vulnerabilityDetails"] = vulnerabilityDetails
+    reportData["vulnerabilityDetails"] = sortedVulnerabilityDetails
     reportData["projectList"] =projectList
     reportData["projectSummaryData"] = projectSummaryData
     reportData["applicationSummaryData"] = applicationSummaryData
