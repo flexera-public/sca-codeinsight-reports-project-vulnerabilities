@@ -441,16 +441,16 @@ def generate_html_report(reportData):
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
 
-    for vulnerability in reportData["vulnerabilityDetails"]:
+    for vulnerability in vulnerabilityDetails:
 
-        vulnerabilityDescription = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityDescription"]
+        vulnerabilityDescription = vulnerabilityDetails[vulnerability]["vulnerabilityDescription"]
         # Just in case there are any "tags" that need to be cleaned up
         vulnerabilityDescription = vulnerabilityDescription.replace('<', '&lt').replace('>', '&gt')
 
-        vulnerabilitySource = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySource"]
-        vulnerabilityUrl = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityUrl"]
-        vulnerabilitySeverity = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilitySeverity"]
-        vulnerabilityScore = reportData["vulnerabilityDetails"][vulnerability]["vulnerabilityScore"]
+        vulnerabilitySource = vulnerabilityDetails[vulnerability]["vulnerabilitySource"]
+        vulnerabilityUrl = vulnerabilityDetails[vulnerability]["vulnerabilityUrl"]
+        vulnerabilitySeverity = vulnerabilityDetails[vulnerability]["vulnerabilitySeverity"]
+        vulnerabilityScore = vulnerabilityDetails[vulnerability]["vulnerabilityScore"]
 
         if vulnerabilityScore == "N/A":
                 vulnerabilityScore = "-"
@@ -459,7 +459,7 @@ def generate_html_report(reportData):
         html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityUrl, vulnerability))
 
 
-        affectedComponents = reportData["vulnerabilityDetails"][vulnerability]["affectedComponents"]
+        affectedComponents = vulnerabilityDetails[vulnerability]["affectedComponents"]
         
         
         html_ptr.write("<td style=\"vertical-align:middle\">")
