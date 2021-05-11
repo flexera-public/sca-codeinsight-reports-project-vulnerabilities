@@ -39,7 +39,7 @@ def generate_xlsx_report(reportData):
     logger.info("    Entering generate_xlsx_report")
 
     reportName = reportData["reportName"]
-    projectName  = reportData["projectName"]
+    projectName  = reportData["projectName"].replace(" - ", "-").replace(" ", "_")
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
@@ -57,7 +57,7 @@ def generate_xlsx_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    xlsxFile = reportName.replace(" ", "_") + ".xlsx"
+    xlsxFile = projectName + "-" + reportName.replace(" ", "_") + ".xlsx"
     logger.debug("xlsxFile: %s" %xlsxFile)
 
     # Create the workbook/worksheet for storying the data
@@ -286,7 +286,7 @@ def generate_html_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    htmlFile = reportName.replace(" ", "_") + ".html"
+    htmlFile = projectName + "-" + reportName.replace(" ", "_") + ".html"
     logger.debug("htmlFile: %s" %htmlFile)
 
     #---------------------------------------------------------------------------------------------------

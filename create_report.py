@@ -64,40 +64,22 @@ def main():
 	logger.debug("    reportID:   %s" %reportID)	
 	logger.debug("    baseURL:  %s" %baseURL)	
 
-	try:
-		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName)
-		print("    Report data has been collected")
-	except:
-		print("Error encountered while collecting report data.  Please see log for details")
-		logger.error("Error encountered while collecting report data.")
-		return -1
+	reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName)
+	print("    Report data has been collected")
+	
+	reports = report_artifacts.create_report_artifacts(reportData)
+	print("    Report artifacts have been created")
 
-	try:
-		reports = report_artifacts.create_report_artifacts(reportData)
-		print("    Report artifacts have been created")
-	except:
-		print("Error encountered while creating report artifacts.  Please see log for details")
-		logger.error("Error encountered while creating report artifacts.")
-		return -1
+	projectName = reportData["projectName"].replace(" - ", "-").replace(" ", "_")
 
-	#########################################################
-	# Create zip file to be uploaded to Code Insight
-	try:
-		uploadZipfile = create_report_zipfile(reports, reportName)
-		print("    Upload zip file creation completed")
-	except:
-		print("Error created zip archive for upload. Please see log for details")
-		logger.error("Error created zip archive for upload.")
-		return -1
+	uploadZipfile = create_report_zipfile(reports, reportName, projectName)
+	print("    Upload zip file creation completed")
+
 
 	#########################################################
 	# Upload the file to Code Insight
-	try:
-		CodeInsight_RESTAPIs.project.upload_reports.upload_project_report_data(baseURL, projectID, reportID, authToken, uploadZipfile)
-	except:
-		print("Error uploading archive to Code Insight")
-		logger.error("Error uploading archive to Code Insight.")
-		return -1
+	CodeInsight_RESTAPIs.project.upload_reports.upload_project_report_data(baseURL, projectID, reportID, authToken, uploadZipfile)
+
 
 	#########################################################
 	# Remove the file since it has been uploaded to Code Insight
@@ -111,12 +93,12 @@ def main():
 	print("Completed creating %s" %reportName)
 
 #---------------------------------------------------------------------#
-def create_report_zipfile(reportOutputs, reportName):
+def create_report_zipfile(reportOutputs, reportName, projectName):
 	logger.info("Entering create_report_zipfile")
 	reportName = reportName.replace(" ", "_")
 
 	# create a ZipFile object
-	allFormatZipFile = reportName.replace(" ", "_") + ".zip"
+	allFormatZipFile = projectName + "-" + reportName.replace(" ", "_") + ".zip"
 	allFormatsZip = zipfile.ZipFile(allFormatZipFile, 'w', zipfile.ZIP_DEFLATED)
 
 	logger.debug("     	  Create downloadable archive: %s" %allFormatZipFile)
@@ -131,7 +113,7 @@ def create_report_zipfile(reportOutputs, reportName):
 	print("        Downloadable archive created")
 
 	# Now create a temp zipfile of the zipfile along with the viewable file itself
-	uploadZipflle = reportName + "_upload.zip"
+	uploadZipflle = projectName.replace(" ", "_") + "-" + reportName.replace(" ", "_") + "_upload.zip"
 	print("        Create zip archive containing viewable and downloadable archive for upload: %s" %uploadZipflle)
 	logger.debug("    Create zip archive containing viewable and downloadable archive for upload: %s" %uploadZipflle)
 	zipToUpload = zipfile.ZipFile(uploadZipflle, 'w', zipfile.ZIP_DEFLATED)
