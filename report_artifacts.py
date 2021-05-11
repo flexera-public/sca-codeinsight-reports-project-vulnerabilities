@@ -57,7 +57,7 @@ def generate_xlsx_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    xlsxFile = projectName.replace(" - ", "-").replace(" ", "_") + + "-" + reportName.replace(" ", "_") + ".xlsx"
+    xlsxFile = projectName.replace(" - ", "-").replace(" ", "_") + "-" + reportName.replace(" ", "_") + ".xlsx"
     logger.debug("xlsxFile: %s" %xlsxFile)
 
     # Create the workbook/worksheet for storying the data
