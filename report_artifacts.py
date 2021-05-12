@@ -188,11 +188,15 @@ def generate_xlsx_report(reportData):
         'fill':       {'color': noneVulnColor} 
     }) 
 
-    worksheet.insert_chart('A1', applicationSummaryChart)
+
+    worksheet.write('E1', "Generated on:")
+    worksheet.write('F1', now)
+
+    worksheet.insert_chart('A2', applicationSummaryChart)
     
     
     # The bar chart will at the top so start the data here   
-    dataStartRow = 10 + numberOfCharts
+    dataStartRow = 11 + numberOfCharts
     row = dataStartRow
     column=0
     tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS SCORE", "SEVERITY", "SOURCE", "DESCRIPTION"]
