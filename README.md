@@ -2,7 +2,9 @@
 
 The sca-codeinsight-reports-project-vulnerability report is a example report for Revenera's Code Insight product. This report allows a user to get a project level view based on the vulnerabilities associated to the inventory items.
 
-This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables](https://datatables.net/) for the creation of the report file
+This repository utilizes the following via CDN for the creation of the report artifacts.
+- [Bootstrap](https://getbootstrap.com/) 
+- [DataTables](https://datatables.net/)
  
 
 
@@ -17,8 +19,6 @@ This repository utilizes [Bootstrap](https://getbootstrap.com/) and [DataTables]
 |1.1.x |2020R4  |
 |2.0.x |2020R4  |
 |2.1.x |2021R1  |
-
-
 
 
 **Submodule Repositories**
@@ -41,6 +41,21 @@ There are two locations that require updates to provide the report scripts detai
 The [create_report.sh](create_report.sh) or [create_report.bat](create_report.bat) file contains a **baseURL** value that should be updated to allow for project and inventory links to point to the correct system. 
 
 For registraion purpsoses update the **baseURL** and **adminAuthToken** values within [registration.py](registration.py) to reflect the correct values to allow the report itself to be registerd on the Code Insight server.
+
+### Registering the Report
+
+Prior to being able to call the script directly from within Code Insight it must be registered. The registration.py file can be used to directly register the report once the contents of this repository have been copied into the custom_report_script folder at the base Code Insight installation directory.
+
+To register this report:
+
+    python registration.py -reg
+
+
+To unregister this report:
+
+    python registration.py -unreg
+
+
 
 ## Usage
 
@@ -66,19 +81,6 @@ For this example report these three items are passed on to a batch or sh file wh
 
 
 
-### Registering the Report
-
-
-Prior to being able to call the script directly from within Code Insight it must be registered. The registration.py file can be used to directly register the report once the contents of this repository have been copied into the custom_report_script folder at the base Code Insight installation directory.
-
-To register this report:
-
-    python registration.py -reg
-
-
-To unregister this report:
-
-    python registration.py -unreg
 
 ## License
 
