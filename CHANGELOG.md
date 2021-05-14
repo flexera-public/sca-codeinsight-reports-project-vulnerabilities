@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.1.1] - 2021-05-14
+### Added
+- XLSX Report format supporting 2021R1
+
 ## [2.1.0] - 2021-03-16
 ### Added
 - Bumped APIs for 2021R1 support due to vulnerability key change
