@@ -3,6 +3,7 @@
 set projectId=%1
 set reportId=%2
 set authToken=%3
+set reportOptions=%4
 rem # These are not currently passed via the framework but should be in a future release
 set baseURL="http://localhost:8888"
 
@@ -15,4 +16,4 @@ rem #  use ~dp0 to get the location of this batch file since the script is
 rem #  relative to that.
 rem ###############################################################################
 
-python %~dp0\create_report.py -pid %projectId% -rid %reportId% -authToken %authToken% -baseURL %baseURL%
+python %~dp0\create_report.py -pid %projectId% -rid %reportId% -authToken %authToken% -baseURL %baseURL% -reportOpts %reportOptions%

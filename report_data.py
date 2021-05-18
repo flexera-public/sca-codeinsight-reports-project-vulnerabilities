@@ -19,8 +19,11 @@ import CodeInsight_RESTAPIs.project.get_project_information
 logger = logging.getLogger(__name__)
 
 #-------------------------------------------------------------------#
-def gather_data_for_report(baseURL, projectID, authToken, reportName):
+def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions):
     logger.info("Entering gather_data_for_report")
+
+    # Parse report options
+    includeChildProjects = reportOptions["includeChildProjects"]  # True/False
 
     projectList = [] # List to hold parent/child details for report
     vulnerabilityDetails = {} # Create dictionary to hold all vulnerability data based on vul ID across all projects
@@ -40,7 +43,10 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName):
 
     projectList.append(nodeDetails)
 
-    projectList = create_project_hierarchy(projectHierarchy, projectHierarchy["id"], projectList, baseURL)
+    if includeChildProjects == "true":
+        projectList = create_project_hierarchy(projectHierarchy, projectHierarchy["id"], projectList, baseURL)
+    else:
+        logger.debug("Child hierarchy disabled")
 
     # Collect details for each project
     for project in projectList:
