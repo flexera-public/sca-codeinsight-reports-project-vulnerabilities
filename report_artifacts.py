@@ -24,10 +24,11 @@ def create_report_artifacts(reportData):
     reports = {}
 
     htmlFile = generate_html_report(reportData)
-    xlsxFile = generate_xlsx_report(reportData)
+    #xlsxFile = generate_xlsx_report(reportData)
     
     reports["viewable"] = htmlFile
-    reports["allFormats"] = [htmlFile, xlsxFile]
+    #reports["allFormats"] = [htmlFile, xlsxFile]
+    reports["allFormats"] = [htmlFile]
 
     logger.info("Exiting create_report_artifacts")
     
@@ -265,6 +266,8 @@ def generate_html_report(reportData):
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
     applicationSummaryData = reportData["applicationSummaryData"]
+
+    cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
@@ -436,8 +439,11 @@ def generate_html_report(reportData):
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
-    html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n") 
-    html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.0</th>\n")
+    html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n")
+    if cvssVersion == "3.x": 
+        html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.x</th>\n")
+    else:
+        html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v2.0</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SEVERITY</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SOURCE</th>\n")
     html_ptr.write("            <th style='width: 50%' class='text-center'>DESCRIPTION</th>\n") 
@@ -636,7 +642,7 @@ def add_default_chart_options(html_ptr):
 def generate_application_summary_chart(html_ptr, applicationSummaryData):
     logger.info("Entering generate_application_summary_chart")
 
-
+    cvssVersion = applicationSummaryData["cvssVersion"]
    
     html_ptr.write(''' 
     
@@ -644,12 +650,18 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
     var applicationVulnerabilityChart = new Chart(applicationVulnerabilities, {
         type: 'horizontalBar',
         data: {
-            datasets: [{
+            datasets: [''')
+
+    if cvssVersion == "3.x":
+        html_ptr.write(''' {       
                 // Critical Vulnerabilities
                 label: 'Critical',
                 data: [%s],
                 backgroundColor: "#400000"
-            },{
+                },''' %applicationSummaryData["numCriticalVulnerabilities"])      
+
+    html_ptr.write('''   
+            {
                 // High Vulnerabilities
                 label: 'High',
                 data: [%s],
@@ -679,7 +691,7 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
 
     applicationVulnerabilityChart.options.tooltips.titleFontSize = 0
     
-    ''' %(applicationSummaryData["numCriticalVulnerabilities"], applicationSummaryData["numHighVulnerabilities"], applicationSummaryData["numMediumVulnerabilities"], applicationSummaryData["numLowVulnerabilities"], applicationSummaryData["numNoneVulnerabilities"]) )
+    ''' %(applicationSummaryData["numHighVulnerabilities"], applicationSummaryData["numMediumVulnerabilities"], applicationSummaryData["numLowVulnerabilities"], applicationSummaryData["numNoneVulnerabilities"]) )
     
 
 #----------------------------------------------------------------------------------------#
@@ -725,6 +737,7 @@ def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
 #----------------------------------------------------------------------------------------#
 def generate_project_summary_charts(html_ptr, projectSummaryData):
     logger.info("Entering generate_project_summary_charts")
+    cvssVersion = projectSummaryData["cvssVersion"]
 
     html_ptr.write(''' 
     
@@ -733,12 +746,16 @@ def generate_project_summary_charts(html_ptr, projectSummaryData):
         type: 'horizontalBar',
         data: {
             labels: %s,
-            datasets: [{
+            datasets: [''' %projectSummaryData["projectNames"])
+
+    if cvssVersion == "3.x":
+        html_ptr.write('''{          
                 // Critical Vulnerabilities
                 label: 'Critical',
                 data: %s,
                 backgroundColor: "#400000"
-            },{
+            },''' %projectSummaryData["numCriticalVulnerabilities"])
+    html_ptr.write('''{
                 // High Vulnerabilities
                 label: 'High',
                 data: %s,
@@ -767,6 +784,6 @@ def generate_project_summary_charts(html_ptr, projectSummaryData):
     });
     projectVulnerabilityChart.options.title.text = "Vulnerability Summary"
     
-    ''' %(projectSummaryData["projectNames"], projectSummaryData["numCriticalVulnerabilities"], projectSummaryData["numHighVulnerabilities"], projectSummaryData["numMediumVulnerabilities"], projectSummaryData["numLowVulnerabilities"], projectSummaryData["numNoneVulnerabilities"]) )
     
-
+    ''' %( projectSummaryData["numHighVulnerabilities"], projectSummaryData["numMediumVulnerabilities"], projectSummaryData["numLowVulnerabilities"], projectSummaryData["numNoneVulnerabilities"]) )
+    

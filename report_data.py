@@ -24,6 +24,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
     # Parse report options
     includeChildProjects = reportOptions["includeChildProjects"]  # True/False
+    cvssVersion = reportOptions["cvssVersion"]  # 2.0/3.x
 
     projectList = [] # List to hold parent/child details for report
     vulnerabilityDetails = {} # Create dictionary to hold all vulnerability data based on vul ID across all projects
@@ -66,12 +67,17 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             print("No Project Information Returned.")
             return -1
 
-        projectData[projectName]["numCriticalVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Critical"]
-        projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["High"]
-        projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Medium"]
-        projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Low"]
-        projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["None"]
-
+        if cvssVersion == "3.x":
+            projectData[projectName]["numCriticalVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Critical"]
+            projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["High"]
+            projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Medium"]
+            projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Low"]
+            projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["None"]
+        else:
+            projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["High"]
+            projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Medium"]
+            projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Low"]
+            projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Unknown"]
 
         # Grab the full project inventory to get specific vulnerability details
         full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
@@ -102,8 +108,12 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilityDescription"] = vulnearbility["vulnerabilityDescription"]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilitySource"] = vulnearbility["vulnerabilitySource"]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilityUrl"] = vulnearbility["vulnerabilityUrl"]
-                            vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV3Severity"]
-                            vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV3Score"]
+                            if cvssVersion == "3.x":
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV3Severity"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV3Score"]
+                            else:
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV2Severity"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV2Score"]
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink])
@@ -119,6 +129,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     
     # Roll up the inventortory data at a project level for display charts
     projectSummaryData = create_project_summary_data_dict(projectData)
+    projectSummaryData["cvssVersion"] = cvssVersion
 
     # Roll up the individual project data to the application level
     applicationSummaryData = create_application_summary_data_dict(projectSummaryData)
@@ -130,7 +141,6 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     reportData["projectList"] =projectList
     reportData["projectSummaryData"] = projectSummaryData
     reportData["applicationSummaryData"] = applicationSummaryData
-
 
     return reportData
 
@@ -174,7 +184,7 @@ def create_project_summary_data_dict(projectData):
     # Grab the data for each project and add it in the correct order
     for projectName in projectData:
         for metric in projectData[projectName]:
-            if metric not in  ["P1InventoryItems", "projectLink"]:  # We don't care about these for now
+            if metric not in  ["P1InventoryItems", "projectLink", "cvssVersion"]:  # We don't care about these for now
                 projectSummaryData[metric].append(projectData[projectName][metric])
 
     projectSummaryData["projectNames"] = list(projectData.keys())
@@ -190,7 +200,9 @@ def create_application_summary_data_dict(projectSummaryData):
 
     # For each metric sum the data up
     for metric in projectSummaryData:
-        if metric != "projectNames":
+        if metric == "cvssVersion":
+            applicationSummaryData[metric] = projectSummaryData[metric]
+        elif metric != "projectNames":
             applicationSummaryData[metric] = sum(projectSummaryData[metric])
 
     logger.debug("Exiting get_application_summary_data")
