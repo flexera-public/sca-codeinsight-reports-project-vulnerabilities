@@ -19,14 +19,37 @@ import CodeInsight_RESTAPIs.reports.create_report
 import CodeInsight_RESTAPIs.reports.delete_report
 
 #####################################################################################################
+#  Code Insight System Information
+baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
+adminAuthToken = "UPDATEME"
+
+#####################################################################################################
 #  Report Details
 reportName = "Project Vulnerability Report"  # What is the name to be shown within Code Insight?
 enableProjectPickerValue = "false"   # true if a second project can be used within this report
 
-#####################################################################################################
-#  Code Insight System Information
-baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
-adminAuthToken = "UPDATEME"
+reportOptions = []
+#
+reportOption = {}
+reportOption["name"] = "includeChildProjects"
+reportOption["label"] = "Include child project data (True/False)"
+reportOption["description"] = "Should the report include data from child projects? <b>(True/False)</b>"
+reportOption["type"] = "string"
+reportOption["defaultValue"] = "True"
+reportOption["required"] = "true"
+reportOption["order"] = "1"
+reportOptions.append(reportOption)
+
+reportOption = {}
+reportOption["name"] = "cvssVersion"
+reportOption["label"] = "CVSS Version (2.0/3.x)"
+reportOption["description"] = "What version of CVSS scoring to report on? <b>(2.0/3.x)</b>"
+reportOption["type"] = "string"
+reportOption["defaultValue"] = "3.x"
+reportOption["required"] = "true"
+reportOption["order"] = "2"
+reportOptions.append(reportOption)
+
 
 #####################################################################################################
 # Quick sanity check
@@ -109,7 +132,7 @@ def register_custom_reports():
     print("Attempting to register %s with a report order of %s" %(reportName, reportOrder))
 
     try:
-        reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, baseURL, adminAuthToken)
+        reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
         print("%s has been registed with a report ID of %s" %(reportName, reportID))
         logger.info("%s has been registed with a report ID of %s" %(reportName, reportID))
     except:
