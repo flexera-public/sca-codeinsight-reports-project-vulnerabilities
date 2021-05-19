@@ -408,7 +408,7 @@ def generate_html_report(reportData):
         
         # How much space to we need to give each canvas
         # based on the amount of projects in the hierarchy
-        canvasHeight = len(projectList) * 20   
+        canvasHeight = len(projectList) * 30   
 
         # We need a minimum size to cover font as well
         if canvasHeight < 180:
