@@ -26,6 +26,11 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     includeChildProjects = reportOptions["includeChildProjects"]  # True/False
     cvssVersion = reportOptions["cvssVersion"]  # 2.0/3.x
 
+    if cvssVersion == "3.x":
+        cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?name="
+    else:
+        cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v2-calculator?name="
+
     projectList = [] # List to hold parent/child details for report
     vulnerabilityDetails = {} # Create dictionary to hold all vulnerability data based on vul ID across all projects
     projectData = {} # Create a dictionary containing the project level summary data using projectID as keys
@@ -111,13 +116,21 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             if cvssVersion == "3.x":
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV3Severity"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV3Score"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV3Vector"]
                             else:
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV2Severity"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV2Score"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV2Vector"]
+                            
+                            # Is there a vector link?
+                            if vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] != "N/A":
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityVectorLink"] = cvssBaseVectorLink + vulnerabilityName
+                            else:
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityVectorLink"] = None
+
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink])
-
                     # Sort the vulnerability dict by score (high to low)
                     sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
 
