@@ -24,11 +24,10 @@ def create_report_artifacts(reportData):
     reports = {}
 
     htmlFile = generate_html_report(reportData)
-    #xlsxFile = generate_xlsx_report(reportData)
+    xlsxFile = generate_xlsx_report(reportData)
     
     reports["viewable"] = htmlFile
-    #reports["allFormats"] = [htmlFile, xlsxFile]
-    reports["allFormats"] = [htmlFile]
+    reports["allFormats"] = [htmlFile, xlsxFile]
 
     logger.info("Exiting create_report_artifacts")
     
@@ -45,6 +44,8 @@ def generate_xlsx_report(reportData):
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
     applicationSummaryData = reportData["applicationSummaryData"] 
+
+    cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     
     # Colors for report
     reveneraGray = '#323E48'
@@ -109,7 +110,8 @@ def generate_xlsx_report(reportData):
     worksheet.set_column('F:F', 60)
 
     # Add the summary data for bar graphs
-    dataWorksheet.write('B1', "Critical")
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B1', "Critical")
     dataWorksheet.write('C1', "High")
     dataWorksheet.write('D1', "Medium")
     dataWorksheet.write('E1', "Low")
@@ -118,8 +120,9 @@ def generate_xlsx_report(reportData):
     dataWorksheet.write('A2', "Application Summary")
     dataWorksheet.write_column('A3', projectSummaryData["projectNames"])
 
-    dataWorksheet.write('B2', applicationSummaryData["numCriticalVulnerabilities"])
-    dataWorksheet.write_column('B3', projectSummaryData["numCriticalVulnerabilities"])  
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B2', applicationSummaryData["numCriticalVulnerabilities"])
+        dataWorksheet.write_column('B3', projectSummaryData["numCriticalVulnerabilities"])  
 
     dataWorksheet.write('C2', applicationSummaryData["numHighVulnerabilities"])
     dataWorksheet.write_column('C3', projectSummaryData["numHighVulnerabilities"])  
@@ -153,13 +156,13 @@ def generate_xlsx_report(reportData):
     summaryDataRow = 1
     summaryDataColumn = 1
 
-    
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 1], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 1, numberOfCharts, 1],
-        'fill':       {'color': criticalVulnColor} 
-    }) 
+    if cvssVersion == "3.x": 
+        applicationSummaryChart.add_series({ 
+            'name':       ['SummaryData', 0, 1], 
+            'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
+            'values':     ['SummaryData', 1, 1, numberOfCharts, 1],
+            'fill':       {'color': criticalVulnColor} 
+        }) 
     
     applicationSummaryChart.add_series({ 
         'name':       ['SummaryData', 0, 2], 
@@ -242,8 +245,12 @@ def generate_xlsx_report(reportData):
         row+=1
 
     # Apply conditional formatting for the CVSS scores 
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+    if cvssVersion == "3.x": 
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+    else: 
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCell})
+
     worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCell})
     worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCell})
 
