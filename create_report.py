@@ -18,6 +18,7 @@ import json
 import _version
 import report_data
 import report_artifacts
+import report_errors
 import CodeInsight_RESTAPIs.project.upload_reports
 
 ###################################################################################
@@ -66,19 +67,31 @@ def main():
 		reportOptions = reportOptions.replace('""', '"')[1:-1]
 
 	reportOptions = json.loads(reportOptions)
+	reportOptions = verifyOptions(reportOptions) 
 	
 	logger.debug("Custom Report Provided Arguments:")	
 	logger.debug("    projectID:  %s" %projectID)	
 	logger.debug("    reportID:   %s" %reportID)	
 	logger.debug("    baseURL:  %s" %baseURL)	
 
-	reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions)
-	print("    Report data has been collected")
+	if "errorMsg" in reportOptions.keys():
+		reportOptions["reportName"] = reportName
+		projectName = "Error"
+		reports = report_errors.create_error_report(reportOptions)
+		print("    *** ERROR  ***  Error found validating report options")
+	else:
+		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions)
+		print("    Report data has been collected")
 	
-	reports = report_artifacts.create_report_artifacts(reportData)
-	print("    Report artifacts have been created")
+		projectName = reportData["projectName"].replace(" - ", "-").replace(" ", "_")
 
-	projectName = reportData["projectName"].replace(" - ", "-").replace(" ", "_")
+
+		if "errorMsg" in reportData.keys():
+			reports = report_errors.create_error_report(reportData)
+			print("    Error report artifacts have been created")
+		else:
+			reports = report_artifacts.create_report_artifacts(reportData)
+			print("    Report artifacts have been created")
 
 	uploadZipfile = create_report_zipfile(reports, reportName, projectName)
 	print("    Upload zip file creation completed")
@@ -99,6 +112,40 @@ def main():
 
 	logger.info("Completed creating %s" %reportName)
 	print("Completed creating %s" %reportName)
+
+
+#----------------------------------------------------------------------# 
+def verifyOptions(reportOptions):
+	'''
+	Expected Options for report:
+		includeChildProjects - True/False
+	'''
+	reportOptions["errorMsg"] = []
+	trueOptions = ["true", "t", "yes", "y"]
+	falseOptions = ["false", "f", "no", "n"]
+
+	includeChildProjects = reportOptions["includeChildProjects"]
+	cvssVersion = reportOptions["cvssVersion"]
+
+	if includeChildProjects.lower() in trueOptions:
+		reportOptions["includeChildProjects"] = "true"
+	elif includeChildProjects.lower() in falseOptions:
+		reportOptions["includeChildProjects"] = "false"
+	else:
+		reportOptions["errorMsg"].append("Invalid option for including child projects: <b>%s</b>.  Valid options are <b>True/False</b>" %includeChildProjects)
+
+	if cvssVersion.startswith("2"):
+		reportOptions["cvssVersion"] = "2.0"
+	elif cvssVersion.startswith("3"):
+		reportOptions["cvssVersion"]  = "3.x"
+	else:
+		reportOptions["errorMsg"].append("Invalid option for CVSS Version: <b>%s</b>.  Valid options are <b>2.0/3.x</b>" %cvssVersion)
+    
+
+	if not reportOptions["errorMsg"]:
+		reportOptions.pop('errorMsg', None)
+
+	return reportOptions
 
 #---------------------------------------------------------------------#
 def create_report_zipfile(reportOutputs, reportName, projectName):
