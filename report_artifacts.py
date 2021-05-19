@@ -68,11 +68,13 @@ def generate_xlsx_report(reportData):
     dataWorksheet = workbook.add_worksheet('SummaryData') 
 
     tableHeaderFormat = workbook.add_format()
+    tableHeaderFormat.set_text_wrap()
     tableHeaderFormat.set_bold()
     tableHeaderFormat.set_bg_color(reveneraGray)
     tableHeaderFormat.set_font_color(white)
     tableHeaderFormat.set_font_size('14')
     tableHeaderFormat.set_align('center')
+    tableHeaderFormat.set_align('vcenter')
 
     cellFormat = workbook.add_format()
     cellFormat.set_text_wrap()
@@ -104,11 +106,12 @@ def generate_xlsx_report(reportData):
     # Set the default column widths
     worksheet.set_column('A:A', 25)  # Vulnerability Name
     worksheet.set_column('B:B', 50)  # Component/project
-    worksheet.set_column('C:C', 25)  # CVSS Score
+    worksheet.set_column('C:C', 15)  # CVSS Score
     worksheet.set_column('D:D', 15)  # CVSS Severity
     worksheet.set_column('E:E', 30)  # CVSS Vector
-    worksheet.set_column('F:F', 14)  # CVSS Source
-    worksheet.set_column('G:G', 60)  # Vulnerability Description
+    worksheet.set_column('F:F', 15)  # CVSS Source
+    worksheet.set_column('G:G', 15)  # Last Modified Date
+    worksheet.set_column('H:H', 60)  # Vulnerability Description
 
     # Add the summary data for bar graphs
     if cvssVersion == "3.x": 
@@ -150,7 +153,7 @@ def generate_xlsx_report(reportData):
         numberOfCharts = len(projectList)  # Just show the summary data since it is the same as the single project
 
       
-    applicationSummaryChart.set_size({'width': 1320, 'height': 200 + (numberOfCharts* 15)})
+    applicationSummaryChart.set_size({'width': 1600, 'height': 200 + (numberOfCharts* 15)})
     applicationSummaryChart.set_legend({'position': 'bottom'})
     applicationSummaryChart.set_y_axis({'reverse': True})
 
@@ -205,9 +208,9 @@ def generate_xlsx_report(reportData):
     row = dataStartRow
     column=0
     if cvssVersion == "3.x": 
-        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v3.x SCORE", "SEVERITY", "CVSS v3.x VECTOR", "SOURCE", "DESCRIPTION"]
+        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v3.x SCORE", "SEVERITY", "CVSS v3.x VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
     else:
-        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v2 SCORE", "SEVERITY", "CVSS v2 VECTOR", "SOURCE", "DESCRIPTION"]
+        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v2 SCORE", "SEVERITY", "CVSS v2 VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
     worksheet.write_row(row, 0, tableHeaders, tableHeaderFormat)
 
     row+=1
@@ -222,6 +225,7 @@ def generate_xlsx_report(reportData):
         vulnerabilityVector = vulnerabilityDetails[vulnerability]["vulnerabilityVector"]
         vulnerabilityVectorLink = vulnerabilityDetails[vulnerability]["vulnerabilityVectorLink"]
         vulnerabilityScore = vulnerabilityDetails[vulnerability]["vulnerabilityScore"]
+        modifiedDate = vulnerabilityDetails[vulnerability]["modifiedDate"]
 
         affectedComponents = vulnerabilityDetails[vulnerability]["affectedComponents"]
 
@@ -250,7 +254,8 @@ def generate_xlsx_report(reportData):
         else:
             worksheet.write(row, 4, vulnerabilityVector, cellFormat)
         worksheet.write(row, 5, vulnerabilitySource, cellFormat)
-        worksheet.write(row, 6, vulnerabilityDescription, cellDescriptionFormat)
+        worksheet.write(row, 6, modifiedDate, cellFormat)
+        worksheet.write(row, 7, vulnerabilityDescription, cellDescriptionFormat)
 
         row+=1
 
@@ -452,7 +457,7 @@ def generate_html_report(reportData):
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    html_ptr.write("            <th colspan='7' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
+    html_ptr.write("            <th colspan='8' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
@@ -467,7 +472,8 @@ def generate_html_report(reportData):
     else:
         html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v2 VECTOR</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SOURCE</th>\n")
-    html_ptr.write("            <th style='width: 45%' class='text-center'>DESCRIPTION</th>\n") 
+    html_ptr.write("            <th style='width: 5%' class='text-center'>LAST MODIFIED</th>\n")
+    html_ptr.write("            <th style='width: 40%' class='text-center'>DESCRIPTION</th>\n") 
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
@@ -484,6 +490,7 @@ def generate_html_report(reportData):
         vulnerabilityVector = vulnerabilityDetails[vulnerability]["vulnerabilityVector"]
         vulnerabilityVectorLink = vulnerabilityDetails[vulnerability]["vulnerabilityVectorLink"]
         vulnerabilityScore = vulnerabilityDetails[vulnerability]["vulnerabilityScore"]
+        modifiedDate = vulnerabilityDetails[vulnerability]["modifiedDate"]
 
         if vulnerabilityScore == "N/A":
                 vulnerabilityScore = "-"
@@ -520,6 +527,7 @@ def generate_html_report(reportData):
 
         
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
+        html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %modifiedDate)
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityDescription)
 
         html_ptr.write("</tr>\n")

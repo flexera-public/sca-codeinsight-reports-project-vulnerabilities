@@ -122,6 +122,8 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV2Score"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV2Vector"]
                             
+                            vulnerabilityDetails[vulnerabilityName]["modifiedDate"] = vulnearbility["modifiedDate"]
+
                             # Is there a vector link?
                             if vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] != "N/A":
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityVectorLink"] = cvssBaseVectorLink + vulnerabilityName
