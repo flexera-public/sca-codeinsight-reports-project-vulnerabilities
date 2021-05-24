@@ -44,6 +44,8 @@ def generate_xlsx_report(reportData):
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
     applicationSummaryData = reportData["applicationSummaryData"] 
+
+    cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     
     # Colors for report
     reveneraGray = '#323E48'
@@ -66,11 +68,13 @@ def generate_xlsx_report(reportData):
     dataWorksheet = workbook.add_worksheet('SummaryData') 
 
     tableHeaderFormat = workbook.add_format()
+    tableHeaderFormat.set_text_wrap()
     tableHeaderFormat.set_bold()
     tableHeaderFormat.set_bg_color(reveneraGray)
     tableHeaderFormat.set_font_color(white)
     tableHeaderFormat.set_font_size('14')
     tableHeaderFormat.set_align('center')
+    tableHeaderFormat.set_align('vcenter')
 
     cellFormat = workbook.add_format()
     cellFormat.set_text_wrap()
@@ -100,15 +104,18 @@ def generate_xlsx_report(reportData):
     lowVulnerabilityCell = workbook.add_format({'bg_color': lowVulnColor})
 
     # Set the default column widths
-    worksheet.set_column('A:A', 25)
-    worksheet.set_column('B:B', 50)
-    worksheet.set_column('C:C', 20)
-    worksheet.set_column('D:D', 15)
-    worksheet.set_column('E:E', 14)
-    worksheet.set_column('F:F', 60)
+    worksheet.set_column('A:A', 25)  # Vulnerability Name
+    worksheet.set_column('B:B', 50)  # Component/project
+    worksheet.set_column('C:C', 15)  # CVSS Score
+    worksheet.set_column('D:D', 15)  # CVSS Severity
+    worksheet.set_column('E:E', 30)  # CVSS Vector
+    worksheet.set_column('F:F', 15)  # CVSS Source
+    worksheet.set_column('G:G', 15)  # Last Modified Date
+    worksheet.set_column('H:H', 60)  # Vulnerability Description
 
     # Add the summary data for bar graphs
-    dataWorksheet.write('B1', "Critical")
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B1', "Critical")
     dataWorksheet.write('C1', "High")
     dataWorksheet.write('D1', "Medium")
     dataWorksheet.write('E1', "Low")
@@ -117,8 +124,9 @@ def generate_xlsx_report(reportData):
     dataWorksheet.write('A2', "Application Summary")
     dataWorksheet.write_column('A3', projectSummaryData["projectNames"])
 
-    dataWorksheet.write('B2', applicationSummaryData["numCriticalVulnerabilities"])
-    dataWorksheet.write_column('B3', projectSummaryData["numCriticalVulnerabilities"])  
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B2', applicationSummaryData["numCriticalVulnerabilities"])
+        dataWorksheet.write_column('B3', projectSummaryData["numCriticalVulnerabilities"])  
 
     dataWorksheet.write('C2', applicationSummaryData["numHighVulnerabilities"])
     dataWorksheet.write_column('C3', projectSummaryData["numHighVulnerabilities"])  
@@ -145,20 +153,20 @@ def generate_xlsx_report(reportData):
         numberOfCharts = len(projectList)  # Just show the summary data since it is the same as the single project
 
       
-    applicationSummaryChart.set_size({'width': 1320, 'height': 200 + (numberOfCharts* 15)})
+    applicationSummaryChart.set_size({'width': 1600, 'height': 200 + (numberOfCharts* 15)})
     applicationSummaryChart.set_legend({'position': 'bottom'})
     applicationSummaryChart.set_y_axis({'reverse': True})
 
     summaryDataRow = 1
     summaryDataColumn = 1
 
-    
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 1], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 1, numberOfCharts, 1],
-        'fill':       {'color': criticalVulnColor} 
-    }) 
+    if cvssVersion == "3.x": 
+        applicationSummaryChart.add_series({ 
+            'name':       ['SummaryData', 0, 1], 
+            'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
+            'values':     ['SummaryData', 1, 1, numberOfCharts, 1],
+            'fill':       {'color': criticalVulnColor} 
+        }) 
     
     applicationSummaryChart.add_series({ 
         'name':       ['SummaryData', 0, 2], 
@@ -199,7 +207,10 @@ def generate_xlsx_report(reportData):
     dataStartRow = 11 + numberOfCharts
     row = dataStartRow
     column=0
-    tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS SCORE", "SEVERITY", "SOURCE", "DESCRIPTION"]
+    if cvssVersion == "3.x": 
+        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v3.x SCORE", "SEVERITY", "CVSS v3.x VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
+    else:
+        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v2 SCORE", "SEVERITY", "CVSS v2 VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
     worksheet.write_row(row, 0, tableHeaders, tableHeaderFormat)
 
     row+=1
@@ -211,7 +222,10 @@ def generate_xlsx_report(reportData):
         vulnerabilitySource = vulnerabilityDetails[vulnerability]["vulnerabilitySource"]
         vulnerabilityUrl = vulnerabilityDetails[vulnerability]["vulnerabilityUrl"]
         vulnerabilitySeverity = vulnerabilityDetails[vulnerability]["vulnerabilitySeverity"]
+        vulnerabilityVector = vulnerabilityDetails[vulnerability]["vulnerabilityVector"]
+        vulnerabilityVectorLink = vulnerabilityDetails[vulnerability]["vulnerabilityVectorLink"]
         vulnerabilityScore = vulnerabilityDetails[vulnerability]["vulnerabilityScore"]
+        modifiedDate = vulnerabilityDetails[vulnerability]["modifiedDate"]
 
         affectedComponents = vulnerabilityDetails[vulnerability]["affectedComponents"]
 
@@ -235,14 +249,23 @@ def generate_xlsx_report(reportData):
         worksheet.write_url(row, 1, inventoryItemLink, cellLinkFormat, string=components)
         worksheet.write(row, 2, vulnerabilityScore, cellFormat)
         worksheet.write(row, 3, vulnerabilitySeverity, cellFormat)
-        worksheet.write(row, 4, vulnerabilitySource, cellFormat)
-        worksheet.write(row, 5, vulnerabilityDescription, cellDescriptionFormat)
+        if vulnerabilityVectorLink:
+            worksheet.write_url(row, 4, vulnerabilityVectorLink, cellLinkFormat, string=vulnerabilityVector)
+        else:
+            worksheet.write(row, 4, vulnerabilityVector, cellFormat)
+        worksheet.write(row, 5, vulnerabilitySource, cellFormat)
+        worksheet.write(row, 6, modifiedDate, cellFormat)
+        worksheet.write(row, 7, vulnerabilityDescription, cellDescriptionFormat)
 
         row+=1
 
     # Apply conditional formatting for the CVSS scores 
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+    if cvssVersion == "3.x": 
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+    else: 
+        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCell})
+
     worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCell})
     worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCell})
 
@@ -265,6 +288,8 @@ def generate_html_report(reportData):
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
     applicationSummaryData = reportData["applicationSummaryData"]
+
+    cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
     cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
@@ -383,7 +408,7 @@ def generate_html_report(reportData):
         
         # How much space to we need to give each canvas
         # based on the amount of projects in the hierarchy
-        canvasHeight = len(projectList) * 20   
+        canvasHeight = len(projectList) * 30   
 
         # We need a minimum size to cover font as well
         if canvasHeight < 180:
@@ -432,15 +457,23 @@ def generate_html_report(reportData):
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    html_ptr.write("            <th colspan='7' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
+    html_ptr.write("            <th colspan='8' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
     html_ptr.write("        </tr>\n") 
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
-    html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n") 
-    html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.0</th>\n")
+    html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n")
+    if cvssVersion == "3.x": 
+        html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.x</th>\n")
+    else:
+        html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v2.0</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SEVERITY</th>\n")
+    if cvssVersion == "3.x": 
+        html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v3.x VECTOR</th>\n")
+    else:
+        html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v2 VECTOR</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SOURCE</th>\n")
-    html_ptr.write("            <th style='width: 50%' class='text-center'>DESCRIPTION</th>\n") 
+    html_ptr.write("            <th style='width: 5%' class='text-center'>LAST MODIFIED</th>\n")
+    html_ptr.write("            <th style='width: 40%' class='text-center'>DESCRIPTION</th>\n") 
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
     html_ptr.write("    <tbody>\n")  
@@ -454,12 +487,14 @@ def generate_html_report(reportData):
         vulnerabilitySource = vulnerabilityDetails[vulnerability]["vulnerabilitySource"]
         vulnerabilityUrl = vulnerabilityDetails[vulnerability]["vulnerabilityUrl"]
         vulnerabilitySeverity = vulnerabilityDetails[vulnerability]["vulnerabilitySeverity"]
+        vulnerabilityVector = vulnerabilityDetails[vulnerability]["vulnerabilityVector"]
+        vulnerabilityVectorLink = vulnerabilityDetails[vulnerability]["vulnerabilityVectorLink"]
         vulnerabilityScore = vulnerabilityDetails[vulnerability]["vulnerabilityScore"]
+        modifiedDate = vulnerabilityDetails[vulnerability]["modifiedDate"]
 
         if vulnerabilityScore == "N/A":
                 vulnerabilityScore = "-"
 
-        
         html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityUrl, vulnerability))
 
 
@@ -485,8 +520,14 @@ def generate_html_report(reportData):
         html_ptr.write("<td style=\"vertical-align:middle\" class='text-center' data-order=\"%s\"> <span class=\"btn btn-%s\">%s</span></td>\n" %(vulnerabilityScore, vulnerabilitySeverity.lower(), vulnerabilityScore))
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySeverity)
 
+        if vulnerabilityVectorLink:
+            html_ptr.write("<td style=\"vertical-align:middle\"><a href=\"%s\" target=\"_blank\">%s</a></td>\n" %(vulnerabilityVectorLink, vulnerabilityVector))
+        else:
+            html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityVector)
+
         
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilitySource)
+        html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %modifiedDate)
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityDescription)
 
         html_ptr.write("</tr>\n")
@@ -636,7 +677,7 @@ def add_default_chart_options(html_ptr):
 def generate_application_summary_chart(html_ptr, applicationSummaryData):
     logger.info("Entering generate_application_summary_chart")
 
-
+    cvssVersion = applicationSummaryData["cvssVersion"]
    
     html_ptr.write(''' 
     
@@ -644,12 +685,18 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
     var applicationVulnerabilityChart = new Chart(applicationVulnerabilities, {
         type: 'horizontalBar',
         data: {
-            datasets: [{
+            datasets: [''')
+
+    if cvssVersion == "3.x":
+        html_ptr.write(''' {       
                 // Critical Vulnerabilities
                 label: 'Critical',
                 data: [%s],
                 backgroundColor: "#400000"
-            },{
+                },''' %applicationSummaryData["numCriticalVulnerabilities"])      
+
+    html_ptr.write('''   
+            {
                 // High Vulnerabilities
                 label: 'High',
                 data: [%s],
@@ -679,7 +726,7 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
 
     applicationVulnerabilityChart.options.tooltips.titleFontSize = 0
     
-    ''' %(applicationSummaryData["numCriticalVulnerabilities"], applicationSummaryData["numHighVulnerabilities"], applicationSummaryData["numMediumVulnerabilities"], applicationSummaryData["numLowVulnerabilities"], applicationSummaryData["numNoneVulnerabilities"]) )
+    ''' %(applicationSummaryData["numHighVulnerabilities"], applicationSummaryData["numMediumVulnerabilities"], applicationSummaryData["numLowVulnerabilities"], applicationSummaryData["numNoneVulnerabilities"]) )
     
 
 #----------------------------------------------------------------------------------------#
@@ -725,6 +772,7 @@ def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
 #----------------------------------------------------------------------------------------#
 def generate_project_summary_charts(html_ptr, projectSummaryData):
     logger.info("Entering generate_project_summary_charts")
+    cvssVersion = projectSummaryData["cvssVersion"]
 
     html_ptr.write(''' 
     
@@ -733,12 +781,16 @@ def generate_project_summary_charts(html_ptr, projectSummaryData):
         type: 'horizontalBar',
         data: {
             labels: %s,
-            datasets: [{
+            datasets: [''' %projectSummaryData["projectNames"])
+
+    if cvssVersion == "3.x":
+        html_ptr.write('''{          
                 // Critical Vulnerabilities
                 label: 'Critical',
                 data: %s,
                 backgroundColor: "#400000"
-            },{
+            },''' %projectSummaryData["numCriticalVulnerabilities"])
+    html_ptr.write('''{
                 // High Vulnerabilities
                 label: 'High',
                 data: %s,
@@ -767,6 +819,6 @@ def generate_project_summary_charts(html_ptr, projectSummaryData):
     });
     projectVulnerabilityChart.options.title.text = "Vulnerability Summary"
     
-    ''' %(projectSummaryData["projectNames"], projectSummaryData["numCriticalVulnerabilities"], projectSummaryData["numHighVulnerabilities"], projectSummaryData["numMediumVulnerabilities"], projectSummaryData["numLowVulnerabilities"], projectSummaryData["numNoneVulnerabilities"]) )
     
-
+    ''' %( projectSummaryData["numHighVulnerabilities"], projectSummaryData["numMediumVulnerabilities"], projectSummaryData["numLowVulnerabilities"], projectSummaryData["numNoneVulnerabilities"]) )
+    

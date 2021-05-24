@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.2] - 2021-05-24
+### Added
+ - Add vector string details for CVSS scores
+ - Add CVE last modified date
+
+## [3.0.1] - 2021-05-19
+### Added
+- Added report option for including child projects
+- Added report option for CVSS version
 
 ## [2.1.1] - 2021-05-14
 ### Added

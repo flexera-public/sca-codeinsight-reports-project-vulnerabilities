@@ -19,6 +19,7 @@ This repository utilizes the following via CDN for the creation of the report ar
 |1.1.x |2020R4  |
 |2.0.x |2020R4  |
 |2.1.x |2021R1  |
+|3.0.x |2021R2  |
 
 
 **Submodule Repositories**
@@ -40,7 +41,8 @@ There are two locations that require updates to provide the report scripts detai
 
 The [create_report.sh](create_report.sh) or [create_report.bat](create_report.bat) file contains a **baseURL** value that should be updated to allow for project and inventory links to point to the correct system. 
 
-For registraion purpsoses update the **baseURL** and **adminAuthToken** values within [registration.py](registration.py) to reflect the correct values to allow the report itself to be registerd on the Code Insight server.
+For registraion purpsoses update the **baseURL** and **adminAuthToken** values within [registration.py](registration.py) to reflect the correct values to allow the report itself to be registerd on the Code Insight server.  Report option default values can also be specified in [registration.py](registration.py) within the reportOptions dictionaries.
+
 
 ### Registering the Report
 
