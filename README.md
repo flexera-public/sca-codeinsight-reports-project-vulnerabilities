@@ -81,13 +81,12 @@ The [create_report.sh](create_report.sh) or [create_report.bat](create_report.ba
 For registration purposes update the **baseURL** and **adminAuthToken** values within [registration.py](registration.py) to reflect the correct values to allow the report itself to be registered on the Code Insight server. These values can also be stored in **common_config.json** that resides directly within the custom_report_scripts folder within the Code Insight installation.  This file can be shared for all reports that support it.
 
   
-The contents of **common_config.json**
+The contents of **common_config.json** should resemble the following:
 
     {
         "baseURL": "http://localhost:8888" ,
         "adminAuthToken" : "TOKEN FROM Code Insight"
     }
-
  
 
 Report option default values can also be specified in [registration.py](registration.py) within the reportOptions dictionaries.
