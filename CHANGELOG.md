@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.3] - 2021-06-01
+### Added
+ - Add update capability to registration script
+ - Add ability to read from common config file
+
 ## [3.0.2] - 2021-05-24
 ### Added
  - Add vector string details for CVSS scores
