@@ -13,16 +13,33 @@ import os
 import stat
 import logging
 import argparse
+import json
 
 import CodeInsight_RESTAPIs.reports.get_reports
 import CodeInsight_RESTAPIs.reports.create_report
 import CodeInsight_RESTAPIs.reports.delete_report
 import CodeInsight_RESTAPIs.reports.update_report
 
+
 #####################################################################################################
 #  Code Insight System Information
-baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
-adminAuthToken = "UPDATEME"
+#  See if there is a common file for config details
+try:
+    ptr = open("../common_config.json")
+    configData = json.load(ptr)
+    baseURL = configData["baseURL"]
+    adminAuthToken = configData["adminAuthToken"]
+    ptr.close()
+except:
+    baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
+    adminAuthToken = "UPDATEME"
+
+#####################################################################################################
+# Quick sanity check
+if adminAuthToken == "UPDATEME" or baseURL == "UPDATEME":
+    print("Make sure baseURL and the admin authorization token have been updated within registration.py or common_config.json")
+    sys.exit()
+
 
 #####################################################################################################
 #  Report Details
@@ -52,16 +69,7 @@ reportOption["order"] = "2"
 reportOptions.append(reportOption)
 
 
-#####################################################################################################
-# Quick sanity check
-if adminAuthToken == "UPDATEME" or baseURL == "UPDATEME":
-    print("Make sure baseURL and the admin authorization token have been updated within registration.py")
-    sys.exit()
 
-#####################################################################################################
-# Get the directory name in order to register the script
-# this will be based on the git repo name is some cases
-currentFolderName = os.path.basename(os.getcwd())
 
 #####################################################################################################
 # The path with the custom_report_scripts folder to called via the framework
@@ -71,6 +79,11 @@ elif sys.platform == "win32":
     reportHelperScript = "create_report.bat"
 else:
     sys.exit("No script file for operating system")
+
+#####################################################################################################
+# Get the directory name in order to register the script
+# this will be based on the git repo name is some cases
+currentFolderName = os.path.basename(os.getcwd())
 
 reportPath = currentFolderName + "/" + reportHelperScript     
 
