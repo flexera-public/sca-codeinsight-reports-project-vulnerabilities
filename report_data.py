@@ -152,6 +152,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     reportData = {}
     reportData["reportName"] = reportName
     reportData["projectName"] = projectHierarchy["name"]
+    reportData["projectID"] = projectID
     reportData["vulnerabilityDetails"] = sortedVulnerabilityDetails
     reportData["projectList"] =projectList
     reportData["projectSummaryData"] = projectSummaryData

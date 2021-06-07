@@ -40,6 +40,8 @@ def generate_xlsx_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
+    projectID = reportData["projectID"] 
+    fileNameTimeStamp = reportData["fileNameTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
@@ -59,7 +61,7 @@ def generate_xlsx_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    xlsxFile = projectName.replace(" - ", "-").replace(" ", "_") + "-" + reportName.replace(" ", "_") + ".xlsx"
+    xlsxFile = reportName.replace(" ", "_") + "-" + str(projectID)  + "-" + fileNameTimeStamp + ".xlsx"
     logger.debug("xlsxFile: %s" %xlsxFile)
 
     # Create the workbook/worksheet for storying the data
@@ -284,6 +286,8 @@ def generate_html_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
+    projectID = reportData["projectID"] 
+    fileNameTimeStamp = reportData["fileNameTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
@@ -315,7 +319,7 @@ def generate_html_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    htmlFile = projectName.replace(" - ", "-").replace(" ", "_") + "-" + reportName.replace(" ", "_") + ".html"
+    htmlFile = reportName.replace(" ", "_") + "-" + str(projectID)  + "-" + fileNameTimeStamp + ".html"
     logger.debug("htmlFile: %s" %htmlFile)
 
     #---------------------------------------------------------------------------------------------------
@@ -545,7 +549,7 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN FOOTER -->\n")
     html_ptr.write("<div class='report-footer'>\n")
-    html_ptr.write("  <div style='float:left'>&copy; 2020 Flexera</div>\n")
+    html_ptr.write("  <div style='float:left'>&copy; %s Flexera</div>\n" %fileNameTimeStamp[0:4])
     html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %now)
     html_ptr.write("</div>\n")
     html_ptr.write("<!-- END FOOTER -->\n")   
