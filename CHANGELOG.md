@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.4] - 2021-06-07
+### Added
+- Artifact file name changes based on project ID and time
+- RESTAPI submodule update
+
 ## [3.0.3] - 2021-06-01
 ### Added
  - Add update capability to registration script
