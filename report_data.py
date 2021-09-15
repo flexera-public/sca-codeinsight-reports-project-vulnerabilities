@@ -61,6 +61,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
         projectID = project["projectID"]
         projectName = project["projectName"]
         projectLink = project["projectLink"]  
+        sortedVulnerabilityDetails = {}
 
         # Create empty dictionary for project level data for this project
         projectData[projectName] = {}
@@ -141,6 +142,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
                 else:
                     logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
+
             except:
                 logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
     
