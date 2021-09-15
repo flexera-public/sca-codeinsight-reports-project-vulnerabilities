@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.5] - 2021-09-20
+### Added
+- Add option to include associated files
+- Gracefully support when there are no vulnerabilities
+- Update artifact names to include project name
+
+
 ## [3.0.4] - 2021-06-07
 ### Added
 - Artifact file name changes based on project ID and time
