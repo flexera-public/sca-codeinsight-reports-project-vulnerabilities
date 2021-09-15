@@ -50,7 +50,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
     projectList.append(nodeDetails)
 
-    if includeChildProjects == "true":
+    if includeChildProjects:
         projectList = create_project_hierarchy(projectHierarchy, projectHierarchy["id"], projectList, baseURL)
     else:
         logger.debug("Child hierarchy disabled")

@@ -121,7 +121,7 @@ def generate_xlsx_report(reportData):
     worksheet.set_column('F:F', 15)  # CVSS Source
     worksheet.set_column('G:G', 15)  # Last Modified Date
     worksheet.set_column('H:H', 60)  # Vulnerability Description
-    if includeAssociatedFiles  == "true":
+    if includeAssociatedFiles:
         worksheet.set_column('I:I', 60)  # Associated Files
 
     # Add the summary data for bar graphs
@@ -223,7 +223,7 @@ def generate_xlsx_report(reportData):
     else:
         tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v2 SCORE", "SEVERITY", "CVSS v2 VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
 
-    if includeAssociatedFiles == "true":
+    if includeAssociatedFiles:
         tableHeaders.append("ASSOCIATED FILES")
 
     worksheet.write_row(row, 0, tableHeaders, tableHeaderFormat)
@@ -254,7 +254,7 @@ def generate_xlsx_report(reportData):
             #projectLink = affectedComponent[4]
             inventoryItemLink = affectedComponent[5]
             
-            if includeAssociatedFiles  == "true":
+            if includeAssociatedFiles:
                 associatedFiles = "\n".join(affectedComponent[6])
             
             components += componentName + " - " + componentVersionName + " (" + projectName + ")  \n"
@@ -275,7 +275,7 @@ def generate_xlsx_report(reportData):
         worksheet.write(row, 6, modifiedDate, cellFormat)
         worksheet.write(row, 7, vulnerabilityDescription, cellDescriptionFormat)
 
-        if includeAssociatedFiles  == "true":
+        if includeAssociatedFiles:
             worksheet.write(row, 8, associatedFiles, cellDescriptionFormat)
 
         row+=1
@@ -486,7 +486,7 @@ def generate_html_report(reportData):
 
     html_ptr.write("    <thead>\n")
     html_ptr.write("        <tr>\n")
-    if includeAssociatedFiles == "true":
+    if includeAssociatedFiles:
         html_ptr.write("            <th colspan='9' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
     else:
         html_ptr.write("            <th colspan='8' class='text-center'><h4>Vulnerabilities</h4></th>\n") 
@@ -507,7 +507,7 @@ def generate_html_report(reportData):
     html_ptr.write("            <th style='width: 5%' class='text-center'>LAST MODIFIED</th>\n")
     
     html_ptr.write("            <th style='width: 40%' class='text-center'>DESCRIPTION</th>\n") 
-    if includeAssociatedFiles == "true":
+    if includeAssociatedFiles:
         html_ptr.write("            <th style='width: 40%' class='text-center'>ASSOCIATED FILES</th>\n") 
     html_ptr.write("        </tr>\n")
     html_ptr.write("    </thead>\n")  
@@ -547,7 +547,7 @@ def generate_html_report(reportData):
             projectLink = affectedComponent[4]
             inventoryItemLink = affectedComponent[5]
 
-            if includeAssociatedFiles  == "true":
+            if includeAssociatedFiles:
                 associatedFiles = "\n".join(affectedComponent[6])
             
             html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a>\n" %(inventoryItemLink, componentName, componentVersionName))
@@ -568,7 +568,7 @@ def generate_html_report(reportData):
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %modifiedDate)
         html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %vulnerabilityDescription)
         
-        if includeAssociatedFiles == "true":
+        if includeAssociatedFiles:
             html_ptr.write("<td style=\"vertical-align:middle\">%s</td>\n" %associatedFiles)
 
         html_ptr.write("</tr>\n")
