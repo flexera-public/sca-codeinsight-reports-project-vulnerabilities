@@ -13,6 +13,7 @@ import os
 from datetime import datetime
 import base64
 import xlsxwriter
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ def generate_xlsx_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
+    projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )
     projectID = reportData["projectID"] 
     fileNameTimeStamp = reportData["fileNameTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
@@ -61,8 +63,12 @@ def generate_xlsx_report(reportData):
 
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
-    
-    xlsxFile = reportName.replace(" ", "_") + "-" + str(projectID)  + "-" + fileNameTimeStamp + ".xlsx"
+
+    if len(projectList)==1:
+        xlsxFile = projectNameForFile + "-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".xlsx"
+    else:
+        xlsxFile = projectNameForFile + "-" + str(projectID)+ "-with-children-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".xlsx" 
+
     logger.debug("xlsxFile: %s" %xlsxFile)
 
     # Create the workbook/worksheet for storying the data
@@ -299,6 +305,7 @@ def generate_html_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
+    projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )
     projectID = reportData["projectID"] 
     fileNameTimeStamp = reportData["fileNameTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
@@ -333,7 +340,11 @@ def generate_html_report(reportData):
     # Grab the current date/time for report date stamp
     now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
     
-    htmlFile = reportName.replace(" ", "_") + "-" + str(projectID)  + "-" + fileNameTimeStamp + ".html"
+    if len(projectList)==1:
+        htmlFile = projectNameForFile + "-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".html"
+    else:
+        htmlFile = projectNameForFile + "-" + str(projectID)+ "-with-children-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".html" 
+        
     logger.debug("htmlFile: %s" %htmlFile)
 
     #---------------------------------------------------------------------------------------------------
