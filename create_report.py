@@ -131,6 +131,7 @@ def verifyOptions(reportOptions):
 
 	includeChildProjects = reportOptions["includeChildProjects"]
 	cvssVersion = reportOptions["cvssVersion"]
+	includeAssociatedFiles = reportOptions["includeAssociatedFiles"]
 
 	if includeChildProjects.lower() in trueOptions:
 		reportOptions["includeChildProjects"] = "true"
@@ -145,7 +146,14 @@ def verifyOptions(reportOptions):
 		reportOptions["cvssVersion"]  = "3.x"
 	else:
 		reportOptions["errorMsg"].append("Invalid option for CVSS Version: <b>%s</b>.  Valid options are <b>2.0/3.x</b>" %cvssVersion)
-    
+
+	if includeAssociatedFiles.lower() in trueOptions:
+		reportOptions["includeAssociatedFiles"] = "true"
+	elif includeAssociatedFiles.lower() in falseOptions:
+		reportOptions["includeAssociatedFiles"] = "false"
+	else:
+		reportOptions["errorMsg"].append("Invalid option for including associated files: <b>%s</b>.  Valid options are <b>True/False</b>" %includeAssociatedFiles)
+
 
 	if not reportOptions["errorMsg"]:
 		reportOptions.pop('errorMsg', None)

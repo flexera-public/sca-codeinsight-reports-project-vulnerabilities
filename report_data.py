@@ -25,6 +25,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     # Parse report options
     includeChildProjects = reportOptions["includeChildProjects"]  # True/False
     cvssVersion = reportOptions["cvssVersion"]  # 2.0/3.x
+    includeAssociatedFiles = reportOptions["includeAssociatedFiles"]  # True/False
 
     if cvssVersion == "3.x":
         cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?name="
@@ -93,6 +94,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             inventoryID = inventoryItem["id"]
             componentName = inventoryItem["componentName"]
             componentVersionName = inventoryItem["componentVersionName"]
+            associatedFiles = inventoryItem["filePaths"]
 
             inventoryItemLink = baseURL + '''/codeinsight/FNCI#myprojectdetails/?id=''' + str(projectID) + '''&tab=projectInventory&pinv=''' + str(inventoryID)
 
@@ -106,7 +108,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
                         # Does it already exist and if so just append the component data
                         if vulnerabilityName in vulnerabilityDetails:
-                            vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink])
+                            vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
                         else:
                             # It's a new key so get all of the important data
                             vulnerabilityDetails[vulnerabilityName] = {}
@@ -132,7 +134,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
-                            vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink])
+                            vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
                     # Sort the vulnerability dict by score (high to low)
                     sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
 
@@ -145,6 +147,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     # Roll up the inventortory data at a project level for display charts
     projectSummaryData = create_project_summary_data_dict(projectData)
     projectSummaryData["cvssVersion"] = cvssVersion
+    projectSummaryData["includeAssociatedFiles"] = includeAssociatedFiles
 
     # Roll up the individual project data to the application level
     applicationSummaryData = create_application_summary_data_dict(projectSummaryData)
@@ -218,7 +221,7 @@ def create_application_summary_data_dict(projectSummaryData):
     for metric in projectSummaryData:
         if metric == "cvssVersion":
             applicationSummaryData[metric] = projectSummaryData[metric]
-        elif metric != "projectNames":
+        elif metric != "projectNames" and metric != "includeAssociatedFiles":
             applicationSummaryData[metric] = sum(projectSummaryData[metric])
 
     logger.debug("Exiting get_application_summary_data")

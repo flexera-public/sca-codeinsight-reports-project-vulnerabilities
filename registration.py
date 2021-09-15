@@ -68,6 +68,15 @@ reportOption["required"] = "true"
 reportOption["order"] = "2"
 reportOptions.append(reportOption)
 
+reportOption = {}
+reportOption["name"] = "includeAssociatedFiles"
+reportOption["label"] = "Include associated files in report"
+reportOption["description"] = "Should the report include the associated files for the inventory item linked to the vulnerability? <b>(True/False)</b>"
+reportOption["type"] = "string"
+reportOption["defaultValue"] = "True"
+reportOption["required"] = "true"
+reportOption["order"] = "3"
+reportOptions.append(reportOption)
 
 
 
