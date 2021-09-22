@@ -136,16 +136,15 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
-                    # Sort the vulnerability dict by score (high to low)
-                    sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
-
-
                 else:
                     logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
 
             except:
                 logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
-    
+
+    # Sort the vulnerability dict by score (high to low)
+    sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
+
     # Roll up the inventortory data at a project level for display charts
     projectSummaryData = create_project_summary_data_dict(projectData)
     projectSummaryData["cvssVersion"] = cvssVersion
