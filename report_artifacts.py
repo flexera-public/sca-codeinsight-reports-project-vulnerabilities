@@ -81,7 +81,7 @@ def generate_xlsx_report(reportData):
     tableHeaderFormat.set_bold()
     tableHeaderFormat.set_bg_color(reveneraGray)
     tableHeaderFormat.set_font_color(white)
-    tableHeaderFormat.set_font_size('14')
+    tableHeaderFormat.set_font_size('12')
     tableHeaderFormat.set_align('center')
     tableHeaderFormat.set_align('vcenter')
 
@@ -89,12 +89,14 @@ def generate_xlsx_report(reportData):
     cellFormat.set_text_wrap()
     cellFormat.set_align('center')
     cellFormat.set_align('vcenter')
+    cellFormat.set_font_size('10')
     cellFormat.set_border()
     
     cellDescriptionFormat = workbook.add_format()
     cellDescriptionFormat.set_text_wrap()
     cellDescriptionFormat.set_align('left')
     cellDescriptionFormat.set_align('vcenter')
+    cellDescriptionFormat.set_font_size('10')
     cellDescriptionFormat.set_border()
 
     cellLinkFormat = workbook.add_format()
@@ -102,6 +104,7 @@ def generate_xlsx_report(reportData):
     cellLinkFormat.set_align('center')
     cellLinkFormat.set_align('vcenter')
     cellLinkFormat.set_font_color('blue')
+    cellLinkFormat.set_font_size('10')
     cellLinkFormat.set_underline()
     cellLinkFormat.set_border()
 
