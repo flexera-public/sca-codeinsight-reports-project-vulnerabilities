@@ -47,7 +47,9 @@ def generate_xlsx_report(reportData):
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
-    applicationSummaryData = reportData["applicationSummaryData"] 
+    applicationSummaryData = reportData["applicationSummaryData"]
+    projectHierarchy = reportData["projectHierarchy"]
+     
 
     cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     includeAssociatedFiles = projectSummaryData["includeAssociatedFiles"]  #True/False
@@ -73,8 +75,9 @@ def generate_xlsx_report(reportData):
 
     # Create the workbook/worksheet for storying the data
     workbook = xlsxwriter.Workbook(xlsxFile)
-    worksheet = workbook.add_worksheet('Vulnerability Data') 
-    dataWorksheet = workbook.add_worksheet('SummaryData') 
+    summaryWorksheet = workbook.add_worksheet('Vulnerability Summary') 
+    detailsWorksheet = workbook.add_worksheet('Vulnerability Details') 
+    dataWorksheet = workbook.add_worksheet('Summary Data') 
 
     tableHeaderFormat = workbook.add_format()
     tableHeaderFormat.set_text_wrap()
@@ -108,6 +111,10 @@ def generate_xlsx_report(reportData):
     cellLinkFormat.set_underline()
     cellLinkFormat.set_border()
 
+    boldCellFormat = workbook.add_format()
+    boldCellFormat.set_align('vcenter')
+    boldCellFormat.set_font_size('12')
+    boldCellFormat.set_bold()
 
     # Create cell formats for the different vuln bands
     criticalVulnerabilityCell = workbook.add_format({'bg_color': criticalVulnColor,'font_color': white})
@@ -115,111 +122,103 @@ def generate_xlsx_report(reportData):
     mediumVulnerabilityCell = workbook.add_format({'bg_color': mediumVulnColor})
     lowVulnerabilityCell = workbook.add_format({'bg_color': lowVulnColor})
 
-    # Set the default column widths
-    worksheet.set_column('A:A', 25)  # Vulnerability Name
-    worksheet.set_column('B:B', 50)  # Component/project
-    worksheet.set_column('C:C', 15)  # CVSS Score
-    worksheet.set_column('D:D', 15)  # CVSS Severity
-    worksheet.set_column('E:E', 30)  # CVSS Vector
-    worksheet.set_column('F:F', 15)  # CVSS Source
-    worksheet.set_column('G:G', 15)  # Last Modified Date
-    worksheet.set_column('H:H', 60)  # Vulnerability Description
-    if includeAssociatedFiles:
-        worksheet.set_column('I:I', 60)  # Associated Files
+    #############################################################################
+    #  Create the summary charts based on the data from the Summary Data tab
+    #############################################################################
 
-    # Add the summary data for bar graphs
-    if cvssVersion == "3.x": 
-        dataWorksheet.write('B1', "Critical")
-    dataWorksheet.write('C1', "High")
-    dataWorksheet.write('D1', "Medium")
-    dataWorksheet.write('E1', "Low")
-    dataWorksheet.write('F1', "None")
-
-    dataWorksheet.write('A2', "Application Summary")
-    dataWorksheet.write_column('A3', projectSummaryData["projectNames"])
-
-    if cvssVersion == "3.x": 
-        dataWorksheet.write('B2', applicationSummaryData["numCriticalVulnerabilities"])
-        dataWorksheet.write_column('B3', projectSummaryData["numCriticalVulnerabilities"])  
-
-    dataWorksheet.write('C2', applicationSummaryData["numHighVulnerabilities"])
-    dataWorksheet.write_column('C3', projectSummaryData["numHighVulnerabilities"])  
-
-    dataWorksheet.write('D2', applicationSummaryData["numMediumVulnerabilities"])
-    dataWorksheet.write_column('D3', projectSummaryData["numMediumVulnerabilities"])  
-
-    dataWorksheet.write('E2', applicationSummaryData["numLowVulnerabilities"])
-    dataWorksheet.write_column('E3', projectSummaryData["numLowVulnerabilities"])  
-
-    dataWorksheet.write('F2', applicationSummaryData["numNoneVulnerabilities"])
-    dataWorksheet.write_column('F3', projectSummaryData["numNoneVulnerabilities"])  
-
-
-    #  Start to populate the vulnerabilty data in summary and individual vulnerabilty detail
-
-    applicationSummaryChart = workbook.add_chart({'type': 'bar', 'subtype': 'stacked'})
+    defaultChartWidth = 700
+    summaryChartHeight = 150
+    catagoryHeaderRow = 6      # Where is the header row on the Summary Data sheet
+    applicationSummaryRow = catagoryHeaderRow + 1  # Where is the summary data on the Summary Data sheet
 
     if len(projectList) > 1:
-        applicationSummaryChart.set_title({'name': 'Vulnerability Summaries'}) 
-        numberOfCharts = len(projectList) + 1  # Include the summary data
+        summaryWorksheet.merge_range('B2:M2', "Project Hierarchy", tableHeaderFormat)
+        summaryWorksheet.set_column('A:Z', 2)
+        summaryWorksheet.hide_gridlines(2)
+        
+        summaryWorksheet.write('C4', projectName, boldCellFormat) # Row 3, column 2
+        display_project_hierarchy(summaryWorksheet, projectHierarchy, 3, 2, boldCellFormat)
+
+        ############################################################################################################
+        #  Vulnerability Summary Chart
+
+        applicationVulnerabilitySummaryChart = workbook.add_chart({'type': 'bar', 'subtype': 'stacked'})
+        applicationVulnerabilitySummaryChart.set_title({'name': 'Application Vulnerabilty Summary'})
+        applicationVulnerabilitySummaryChart.set_size({'width': defaultChartWidth, 'height': summaryChartHeight})
+        applicationVulnerabilitySummaryChart.set_legend({'position': 'bottom'})
+        applicationVulnerabilitySummaryChart.set_y_axis({'reverse': True})
+
+        if cvssVersion == "3.x": 
+            vulnerabilityBarColors = [criticalVulnColor, highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
+            vulnerabiltyDataStartColumn = 1 # Start data in Column B on the Summary Data sheet
+        else:
+            vulnerabilityBarColors = [highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
+            vulnerabiltyDataStartColumn = 2 # Start data in Column C on the Summary Data sheet
+        
+        for columnIndex in range(0, len(vulnerabilityBarColors)):
+
+            applicationVulnerabilitySummaryChart.add_series({ 
+                'name':       ['Summary Data', catagoryHeaderRow, columnIndex+vulnerabiltyDataStartColumn], 
+                'categories': ['Summary Data', applicationSummaryRow, columnIndex, applicationSummaryRow, columnIndex], 
+                'values':     ['Summary Data', applicationSummaryRow, columnIndex+vulnerabiltyDataStartColumn, applicationSummaryRow, columnIndex+vulnerabiltyDataStartColumn],
+                'fill':       {'color': vulnerabilityBarColors[columnIndex]}            }) 
+        
+        summaryWorksheet.insert_chart('AA2', applicationVulnerabilitySummaryChart)
+        
+
+    ############################################################################################################
+    #  Vulnerability Summary Chart
+    projectVulnerabilitySummaryChart = workbook.add_chart({'type': 'bar', 'subtype': 'stacked'})
+
+    if len(projectList) == 1:
+        projectVulnerabilitySummaryChart.set_title({'name': 'Project Level Vulnerabilty Summary'})
     else:
-        applicationSummaryChart.set_title({'name': '%s Summary' %projectName})
-        numberOfCharts = len(projectList)  # Just show the summary data since it is the same as the single project
+        projectVulnerabilitySummaryChart.set_title({'name': 'Project Level Vulnerabilty Summaries'})
 
-      
-    applicationSummaryChart.set_size({'width': 1600, 'height': 200 + (numberOfCharts* 15)})
-    applicationSummaryChart.set_legend({'position': 'bottom'})
-    applicationSummaryChart.set_y_axis({'reverse': True})
-
-    summaryDataRow = 1
-    summaryDataColumn = 1
+    projectVulnerabilitySummaryChart.set_size({'width': defaultChartWidth, 'height': summaryChartHeight + (len(projectList)* 30)})
+    projectVulnerabilitySummaryChart.set_legend({'position': 'bottom'})
+    projectVulnerabilitySummaryChart.set_y_axis({'reverse': True})
 
     if cvssVersion == "3.x": 
-        applicationSummaryChart.add_series({ 
-            'name':       ['SummaryData', 0, 1], 
-            'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-            'values':     ['SummaryData', 1, 1, numberOfCharts, 1],
-            'fill':       {'color': criticalVulnColor} 
-        }) 
+        vulnerabilityBarColors = [criticalVulnColor, highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
+        vulnerabiltyDataStartColumn = 1 # Start data in Column B
+    else:
+        vulnerabilityBarColors = [highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
+        vulnerabiltyDataStartColumn = 2 # Start data in Column C
     
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 2], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 2, numberOfCharts, 2],
-        'fill':       {'color': highVulnColor} 
-    }) 
+    for columnIndex in range(0, len(vulnerabilityBarColors)):
 
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 3], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 3, numberOfCharts, 3],
-        'fill':       {'color': mediumVulnColor} 
-    }) 
-
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 4], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 4, numberOfCharts, 4],
-        'fill':       {'color': lowVulnColor} 
-    }) 
-
-    applicationSummaryChart.add_series({ 
-        'name':       ['SummaryData', 0, 5], 
-        'categories': ['SummaryData', 1, 0, numberOfCharts, 0], 
-        'values':     ['SummaryData', 1, 5, numberOfCharts, 5],
-        'fill':       {'color': noneVulnColor} 
-    }) 
+        projectVulnerabilitySummaryChart.add_series({ 
+            'name':       ['Summary Data', catagoryHeaderRow, columnIndex+vulnerabiltyDataStartColumn], 
+            'categories': ['Summary Data', catagoryHeaderRow+1, columnIndex, catagoryHeaderRow+1+len(projectList), columnIndex], 
+            'values':     ['Summary Data', catagoryHeaderRow+1, columnIndex+vulnerabiltyDataStartColumn, catagoryHeaderRow+1+len(projectList), columnIndex+vulnerabiltyDataStartColumn],
+            'fill':       {'color': vulnerabilityBarColors[columnIndex]}        }) 
 
 
-    worksheet.write('E1', "Generated on:")
-    worksheet.write('F1', now)
+    if len(projectList) == 1:
+        summaryWorksheet.insert_chart('A11', projectVulnerabilitySummaryChart)
+    else:
+        summaryWorksheet.insert_chart('AA9', projectVulnerabilitySummaryChart)
 
-    worksheet.insert_chart('A2', applicationSummaryChart)
-    
-    
-    # The bar chart will at the top so start the data here   
-    dataStartRow = 11 + numberOfCharts
-    row = dataStartRow
+
+    #############################################################################
+    #  Populate the individual vulnerability details
+    #############################################################################
+
+    # Set the default column widths
+    detailsWorksheet.set_column('A:A', 25)  # Vulnerability Name
+    detailsWorksheet.set_column('B:B', 50)  # Component/project
+    detailsWorksheet.set_column('C:C', 15)  # CVSS Score
+    detailsWorksheet.set_column('D:D', 15)  # CVSS Severity
+    detailsWorksheet.set_column('E:E', 30)  # CVSS Vector
+    detailsWorksheet.set_column('F:F', 15)  # CVSS Source
+    detailsWorksheet.set_column('G:G', 15)  # Last Modified Date
+    detailsWorksheet.set_column('H:H', 60)  # Vulnerability Description
+    if includeAssociatedFiles:
+        detailsWorksheet.set_column('I:I', 60)  # Associated Files
+
+    # Write the Column Headers
+    row = 0
     column=0
     if cvssVersion == "3.x": 
         tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v3.x SCORE", "SEVERITY", "CVSS v3.x VECTOR", "SOURCE", "LAST MODIFIED", "DESCRIPTION"]
@@ -229,11 +228,10 @@ def generate_xlsx_report(reportData):
     if includeAssociatedFiles:
         tableHeaders.append("ASSOCIATED FILES")
 
-    worksheet.write_row(row, 0, tableHeaders, tableHeaderFormat)
-
+    detailsWorksheet.write_row(row, column , tableHeaders, tableHeaderFormat) # Write the col headers out
     row+=1
-   
-     
+
+    # Cycle through each vulnerabiltty and add contects to sheet 
     for vulnerability in vulnerabilityDetails:
 
         vulnerabilityDescription = vulnerabilityDetails[vulnerability]["vulnerabilityDescription"]
@@ -266,39 +264,89 @@ def generate_xlsx_report(reportData):
         components=components[:-2]
 
         # Now write each cell
-        worksheet.write_url(row, 0, vulnerabilityUrl, cellLinkFormat, string=vulnerability)
-        worksheet.write_url(row, 1, inventoryItemLink, cellLinkFormat, string=components)
-        worksheet.write(row, 2, vulnerabilityScore, cellFormat)
-        worksheet.write(row, 3, vulnerabilitySeverity, cellFormat)
+        detailsWorksheet.write_url(row, 0, vulnerabilityUrl, cellLinkFormat, string=vulnerability)
+        detailsWorksheet.write_url(row, 1, inventoryItemLink, cellLinkFormat, string=components)
+        detailsWorksheet.write(row, 2, vulnerabilityScore, cellFormat)
+        detailsWorksheet.write(row, 3, vulnerabilitySeverity, cellFormat)
         if vulnerabilityVectorLink:
-            worksheet.write_url(row, 4, vulnerabilityVectorLink, cellLinkFormat, string=vulnerabilityVector)
+            detailsWorksheet.write_url(row, 4, vulnerabilityVectorLink, cellLinkFormat, string=vulnerabilityVector)
         else:
-            worksheet.write(row, 4, vulnerabilityVector, cellFormat)
-        worksheet.write(row, 5, vulnerabilitySource, cellFormat)
-        worksheet.write(row, 6, modifiedDate, cellFormat)
-        worksheet.write(row, 7, vulnerabilityDescription, cellDescriptionFormat)
+            detailsWorksheet.write(row, 4, vulnerabilityVector, cellFormat)
+        detailsWorksheet.write(row, 5, vulnerabilitySource, cellFormat)
+        detailsWorksheet.write(row, 6, modifiedDate, cellFormat)
+        detailsWorksheet.write(row, 7, vulnerabilityDescription, cellDescriptionFormat)
 
         if includeAssociatedFiles:
-            worksheet.write(row, 8, associatedFiles, cellDescriptionFormat)
+            detailsWorksheet.write(row, 8, associatedFiles, cellDescriptionFormat)
 
         row+=1
 
     # Apply conditional formatting for the CVSS scores 
     if cvssVersion == "3.x": 
-        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
-        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
     else: 
-        worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCell})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCell})
 
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCell})
-    worksheet.conditional_format(dataStartRow,2, dataStartRow + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCell})
+    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCell})
+    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCell})
 
     # Automatically create the filter sort options
-    worksheet.autofilter(dataStartRow,0, dataStartRow + len(vulnerabilityDetails)-1, len(tableHeaders)-1)
+    detailsWorksheet.autofilter(0,0, 0 + len(vulnerabilityDetails)-1, len(tableHeaders)-1)
+
+
+    #############################################################################
+    #  Populate the Summary Data details
+    #############################################################################
+
+    # Add the summary data for bar graphs
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B' + str(catagoryHeaderRow +1) , "Critical")
+    dataWorksheet.write('C' + str(catagoryHeaderRow +1) , "High")
+    dataWorksheet.write('D' + str(catagoryHeaderRow +1) , "Medium")
+    dataWorksheet.write('E' + str(catagoryHeaderRow +1) , "Low")
+    dataWorksheet.write('F' + str(catagoryHeaderRow +1) , "None")
+
+    dataWorksheet.write('A' + str(catagoryHeaderRow +2) , "Application Summary")
+    dataWorksheet.write_column('A' + str(catagoryHeaderRow +3), projectSummaryData["projectNames"])
+
+    if cvssVersion == "3.x": 
+        dataWorksheet.write('B' + str(catagoryHeaderRow +2), applicationSummaryData["numCriticalVulnerabilities"])
+        dataWorksheet.write_column('B' + str(catagoryHeaderRow +3), projectSummaryData["numCriticalVulnerabilities"])  
+
+    dataWorksheet.write('C' + str(catagoryHeaderRow +2), applicationSummaryData["numHighVulnerabilities"])
+    dataWorksheet.write_column('C' + str(catagoryHeaderRow +3), projectSummaryData["numHighVulnerabilities"])  
+
+    dataWorksheet.write('D' + str(catagoryHeaderRow +2), applicationSummaryData["numMediumVulnerabilities"])
+    dataWorksheet.write_column('D' + str(catagoryHeaderRow +3), projectSummaryData["numMediumVulnerabilities"])  
+
+    dataWorksheet.write('E' + str(catagoryHeaderRow +2), applicationSummaryData["numLowVulnerabilities"])
+    dataWorksheet.write_column('E' + str(catagoryHeaderRow +3), projectSummaryData["numLowVulnerabilities"])  
+
+    dataWorksheet.write('F' + str(catagoryHeaderRow +2), applicationSummaryData["numNoneVulnerabilities"])
+    dataWorksheet.write_column('F' + str(catagoryHeaderRow +3), projectSummaryData["numNoneVulnerabilities"])  
 
     workbook.close()
 
     return xlsxFile
+
+#------------------------------------------------------------#
+def display_project_hierarchy(worksheet, parentProject, row, column, boldCellFormat):
+
+    column +=1 #  We are level down so we need to indent
+    row +=1
+    # Are there more child projects for this project?
+
+    if len(parentProject["childProject"]):
+        for childProject in parentProject["childProject"]:
+            projectID = childProject["id"]
+            projectName = childProject["name"]
+            # Add this ID to the list of projects with other child projects
+            # and get then do it again
+            worksheet.write( row, column, projectName, boldCellFormat)
+
+            row =  display_project_hierarchy(worksheet, childProject, row, column, boldCellFormat)
+    return row
 
 
 #------------------------------------------------------------------#

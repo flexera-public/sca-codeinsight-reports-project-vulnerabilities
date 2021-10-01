@@ -161,6 +161,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     reportData["projectList"] =projectList
     reportData["projectSummaryData"] = projectSummaryData
     reportData["applicationSummaryData"] = applicationSummaryData
+    reportData["projectHierarchy"] = projectHierarchy
 
     return reportData
 
