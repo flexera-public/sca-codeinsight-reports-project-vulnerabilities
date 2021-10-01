@@ -15,6 +15,8 @@ import base64
 import xlsxwriter
 import re
 
+import _version
+
 logger = logging.getLogger(__name__)
 
 #--------------------------------------------------------------------------------#
@@ -298,6 +300,9 @@ def generate_xlsx_report(reportData):
     #############################################################################
     #  Populate the Summary Data details
     #############################################################################
+
+    dataWorksheet.merge_range('B1:F1', "Report Gernerated: %s" %(datetime.now().strftime("%B %d, %Y at %H:%M:%S")))
+    dataWorksheet.merge_range('B2:F2', "Report Version: %s" %_version.__version__)
 
     # Add the summary data for bar graphs
     if cvssVersion == "3.x": 
@@ -639,6 +644,8 @@ def generate_html_report(reportData):
     html_ptr.write("<div class='report-footer'>\n")
     html_ptr.write("  <div style='float:left'>&copy; %s Flexera</div>\n" %fileNameTimeStamp[0:4])
     html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %now)
+    html_ptr.write("<br>\n")
+    html_ptr.write("  <div style='float:right'>Report Version: %s</div>\n" %_version.__version__)
     html_ptr.write("</div>\n")
     html_ptr.write("<!-- END FOOTER -->\n")   
 
