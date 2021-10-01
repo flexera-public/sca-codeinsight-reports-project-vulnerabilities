@@ -125,6 +125,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV2Score"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV2Vector"]
                             
+                            vulnerabilityDetails[vulnerabilityName]["publishedDate"] = vulnearbility["publishedDate"]
                             vulnerabilityDetails[vulnerabilityName]["modifiedDate"] = vulnearbility["modifiedDate"]
 
                             # Is there a vector link?
