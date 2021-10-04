@@ -78,6 +78,7 @@ def generate_xlsx_report(reportData):
     # Create the workbook/worksheet for storying the data
     workbook = xlsxwriter.Workbook(xlsxFile)
     summaryWorksheet = workbook.add_worksheet('Vulnerability Summary') 
+    summaryWorksheet.hide_gridlines(2)
     detailsWorksheet = workbook.add_worksheet('Vulnerability Details') 
     dataWorksheet = workbook.add_worksheet('Summary Data') 
 
@@ -136,8 +137,7 @@ def generate_xlsx_report(reportData):
     if len(projectList) > 1:
         summaryWorksheet.merge_range('B2:M2', "Project Hierarchy", tableHeaderFormat)
         summaryWorksheet.set_column('A:Z', 2)
-        summaryWorksheet.hide_gridlines(2)
-        
+                
         summaryWorksheet.write('C4', projectName, boldCellFormat) # Row 3, column 2
         display_project_hierarchy(summaryWorksheet, projectHierarchy, 3, 2, boldCellFormat)
 
@@ -192,13 +192,13 @@ def generate_xlsx_report(reportData):
 
         projectVulnerabilitySummaryChart.add_series({ 
             'name':       ['Summary Data', catagoryHeaderRow, columnIndex+vulnerabiltyDataStartColumn], 
-            'categories': ['Summary Data', catagoryHeaderRow+1, columnIndex, catagoryHeaderRow+1+len(projectList), columnIndex], 
-            'values':     ['Summary Data', catagoryHeaderRow+1, columnIndex+vulnerabiltyDataStartColumn, catagoryHeaderRow+1+len(projectList), columnIndex+vulnerabiltyDataStartColumn],
+            'categories': ['Summary Data', applicationSummaryRow+1, columnIndex, applicationSummaryRow+1+len(projectList), columnIndex], 
+            'values':     ['Summary Data', applicationSummaryRow+1, columnIndex+vulnerabiltyDataStartColumn, applicationSummaryRow+1+len(projectList), columnIndex+vulnerabiltyDataStartColumn],
             'fill':       {'color': vulnerabilityBarColors[columnIndex]}        }) 
 
 
     if len(projectList) == 1:
-        summaryWorksheet.insert_chart('A11', projectVulnerabilitySummaryChart)
+        summaryWorksheet.insert_chart('B2', projectVulnerabilitySummaryChart)
     else:
         summaryWorksheet.insert_chart('AA9', projectVulnerabilitySummaryChart)
 
