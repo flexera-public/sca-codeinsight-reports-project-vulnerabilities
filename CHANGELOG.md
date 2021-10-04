@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.6] - 2021-10-04
+### Added
+- Add vulnerability published date
+- Move summary chart to seperate tab
+- Add project hierarchy chart
+- Add report version
+
 ## [3.0.5] - 2021-09-20
 ### Added
 - Add option to include associated files
