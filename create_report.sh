@@ -3,8 +3,6 @@ projectId=$1
 reportId=$2
 authToken=$3
 reportOptions=$4
-# These are not currently passed via the framework but should be in a future release
-baseURL=http://localhost:8888
 
 ###############################################################################
 #  Call the script to collect the data and generate the report
@@ -17,4 +15,4 @@ baseURL=http://localhost:8888
 
 REPORTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-python3 ${REPORTDIR}/create_report.py -pid $projectId -rid $reportId -authToken $authToken -reportOpts "$reportOptions" -baseURL $baseURL
+python3 ${REPORTDIR}/create_report.py -pid $projectId -rid $reportId -authToken $authToken -reportOpts "$reportOptions"

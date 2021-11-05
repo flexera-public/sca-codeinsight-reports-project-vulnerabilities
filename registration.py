@@ -25,10 +25,10 @@ import CodeInsight_RESTAPIs.reports.update_report
 #  Code Insight System Information
 #  See if there is a common file for config details
 try:
-    ptr = open("../common_config.json")
+    ptr = open("../server_properties.json")
     configData = json.load(ptr)
-    baseURL = configData["baseURL"]
-    adminAuthToken = configData["adminAuthToken"]
+    baseURL = configData["core.server.url"]
+    adminAuthToken = configData["core.server.token"]
     ptr.close()
 except:
     baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 

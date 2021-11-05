@@ -31,6 +31,9 @@ if sys.version_info <= (3, 5):
 else:
     pass
 
+propertiesFile = "../server_properties.json"  # Created by installer or manually
+propertiesFile = logfileName = os.path.dirname(os.path.realpath(__file__)) + "/" +  propertiesFile
+baseURL = "http://localhost:8888"   # Required if the core.server.properties files is not used
 logfileName = os.path.dirname(os.path.realpath(__file__)) + "/_project_vulnerabilities_report.log"
 
 ###################################################################################
@@ -44,9 +47,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-pid', "--projectID", help="Project ID")
 parser.add_argument("-rid", "--reportID", help="Report ID")
 parser.add_argument("-authToken", "--authToken", help="Code Insight Authorization Token")
-parser.add_argument("-baseURL", "--baseURL", help="Code Insight Core Server Protocol/Domain Name/Port.  i.e. http://localhost:8888 or https://sca.codeinsight.com:8443")
 parser.add_argument("-reportOpts", "--reportOptions", help="Options for report content")
-
 
 #----------------------------------------------------------------------#
 def main():
@@ -61,8 +62,19 @@ def main():
 	projectID = args.projectID
 	reportID = args.reportID
 	authToken = args.authToken
-	baseURL = args.baseURL
 	reportOptions = args.reportOptions
+
+	#####################################################################################################
+	#  Code Insight System Information
+	#  Pull the base URL from the same file that the installer is creating
+	try:
+		file_ptr = open(propertiesFile, "r")
+		configData = json.load(file_ptr)
+		baseURL = configData["core.server.url"]
+		file_ptr.close()
+		logger.info("Using baseURL from properties file: %s" %propertiesFile)
+	except:
+		logger.info("Using baseURL, %s,  from create_report.py" %baseURL)
 
 	fileNameTimeStamp = datetime.now().strftime("%Y%m%d-%H%M%S")
 
