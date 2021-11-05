@@ -9,8 +9,6 @@ File : report_artifacts_xlsx.py
 '''
 import logging
 
-import re
-import os
 from datetime import datetime
 import xlsxwriter
 
@@ -24,9 +22,8 @@ def generate_xlsx_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
-    projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )
-    projectID = reportData["projectID"] 
-    fileNameTimeStamp = reportData["fileNameTimeStamp"] 
+    reportFileNameBase = reportData["reportFileNameBase"]
+    reportTimeStamp =  reportData["reportTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
@@ -46,15 +43,7 @@ def generate_xlsx_report(reportData):
     lowVulnColor = "#FFFF00"
     noneVulnColor = "#D3D3D3"
 
-    # Grab the current date/time for report date stamp
-    now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
-
-    if len(projectList)==1:
-        xlsxFile = projectNameForFile + "-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".xlsx"
-    else:
-        xlsxFile = projectNameForFile + "-" + str(projectID)+ "-with-children-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".xlsx" 
-
-    logger.debug("xlsxFile: %s" %xlsxFile)
+    xlsxFile = reportFileNameBase + ".xlsx"
 
     # Create the workbook/worksheet for storying the data
     workbook = xlsxwriter.Workbook(xlsxFile)

@@ -9,9 +9,7 @@ File : report_artifacts_html.py
 '''
 
 import logging
-import re
 import os
-from datetime import datetime
 import base64
 
 import _version
@@ -27,9 +25,8 @@ def generate_html_report(reportData):
 
     reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
-    projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )
-    projectID = reportData["projectID"] 
-    fileNameTimeStamp = reportData["fileNameTimeStamp"] 
+    reportFileNameBase = reportData["reportFileNameBase"]
+    reportTimeStamp =  reportData["reportTimeStamp"] 
     vulnerabilityDetails = reportData["vulnerabilityDetails"]
     projectList = reportData["projectList"]
     projectSummaryData = reportData["projectSummaryData"]
@@ -59,15 +56,7 @@ def generate_html_report(reportData):
     encodedLogoImage = encodeImage(logoImageFile)
     encodedfaviconImage = encodeImage(iconFile)
 
-    # Grab the current date/time for report date stamp
-    now = datetime.now().strftime("%B %d, %Y at %H:%M:%S")
-    
-    if len(projectList)==1:
-        htmlFile = projectNameForFile + "-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".html"
-    else:
-        htmlFile = projectNameForFile + "-" + str(projectID)+ "-with-children-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".html" 
-        
-    logger.debug("htmlFile: %s" %htmlFile)
+    htmlFile = reportFileNameBase + ".html"
 
     #---------------------------------------------------------------------------------------------------
     # Create a simple HTML file to display
@@ -311,12 +300,11 @@ def generate_html_report(reportData):
     #---------------------------------------------------------------------------------------------------
     html_ptr.write("<!-- BEGIN FOOTER -->\n")
     html_ptr.write("<div class='report-footer'>\n")
-    html_ptr.write("  <div style='float:left'>&copy; %s Flexera</div>\n" %fileNameTimeStamp[0:4])
-    html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %now)
+    html_ptr.write("  <div style='float:right'>Generated on %s</div>\n" %reportTimeStamp)
     html_ptr.write("<br>\n")
     html_ptr.write("  <div style='float:right'>Report Version: %s</div>\n" %_version.__version__)
     html_ptr.write("</div>\n")
-    html_ptr.write("<!-- END FOOTER -->\n")   
+    html_ptr.write("<!-- END FOOTER -->\n")    
 
     html_ptr.write("</div>\n")
 

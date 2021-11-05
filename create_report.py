@@ -98,9 +98,19 @@ def main():
 	else:
 		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions)
 		print("    Report data has been collected")
-		reportData["fileNameTimeStamp"] = fileNameTimeStamp
+		
 		projectName = reportData["projectName"]
-		numProjects = len(reportData["projectList"])
+		projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )  # Remove special characters from project name for artifacts
+		
+		# Are there child projects involved?  If so have the artifact file names reflect this fact
+		if len(reportData["projectList"])==1:
+			reportFileNameBase = projectNameForFile + "-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp
+		else:
+			reportFileNameBase = projectNameForFile + "-with-children-" + str(projectID) + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp
+
+		reportData["fileNameTimeStamp"] = fileNameTimeStamp
+		reportData["reportTimeStamp"] = datetime.strptime(fileNameTimeStamp, "%Y%m%d-%H%M%S").strftime("%B %d, %Y at %H:%M:%S")
+		reportData["reportFileNameBase"] = reportFileNameBase
 	
 		if "errorMsg" in reportData.keys():
 			reports = report_errors.create_error_report(reportData)
@@ -110,7 +120,7 @@ def main():
 			print("    Report artifacts have been created")
 
 	print("    Create report archive for upload")
-	uploadZipfile = create_report_zipfile(reports, reportName, projectName, projectID, numProjects, fileNameTimeStamp)
+	uploadZipfile = create_report_zipfile(reports, reportFileNameBase)
 	print("    Upload zip file creation completed")
 
 
@@ -173,17 +183,11 @@ def verifyOptions(reportOptions):
 	return reportOptions
 
 #---------------------------------------------------------------------#
-def create_report_zipfile(reportOutputs, reportName, projectName, projectID, numProjects, fileNameTimeStamp):
+def create_report_zipfile(reportOutputs, reportFileNameBase):
 	logger.info("Entering create_report_zipfile")
-	reportName = reportName.replace(" ", "_")
-	projectNameForFile = re.sub(r"[^a-zA-Z0-9]+", '-', projectName )
+	allFormatZipFile = reportFileNameBase + ".zip"
 
 	# create a ZipFile object
-	# create a ZipFile object
-	if numProjects == 1 :
-		allFormatZipFile = projectNameForFile + "-" + projectID + "-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".zip"
-	else: 
-		allFormatZipFile = projectNameForFile + "-" + projectID + "-with-children-" + reportName.replace(" ", "_") + "-" + fileNameTimeStamp + ".zip"
 	allFormatsZip = zipfile.ZipFile(allFormatZipFile, 'w', zipfile.ZIP_DEFLATED)
 
 	logger.debug("     	  Create downloadable archive: %s" %allFormatZipFile)
