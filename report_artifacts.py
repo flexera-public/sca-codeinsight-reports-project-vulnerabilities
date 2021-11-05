@@ -376,12 +376,12 @@ def generate_html_report(reportData):
     includeAssociatedFiles = projectSummaryData["includeAssociatedFiles"]  #True/False
     
     scriptDirectory = os.path.dirname(os.path.realpath(__file__))
-    cssFile =  os.path.join(scriptDirectory, "html-assets/css/revenera_common.css")
-    logoImageFile =  os.path.join(scriptDirectory, "html-assets/images/logo_reversed.svg")
-    iconFile =  os.path.join(scriptDirectory, "html-assets/images/favicon-revenera.ico")
-    statusApprovedIcon = os.path.join(scriptDirectory, "html-assets/images/status_approved_selected.png")
-    statusRejectedIcon = os.path.join(scriptDirectory, "html-assets/images/status_rejected_selected.png")
-    statusDraftIcon = os.path.join(scriptDirectory, "html-assets/images/status_draft_ready_selected.png")
+    cssFile =  os.path.join(scriptDirectory, "report_branding/css/revenera_common.css")
+    logoImageFile =  os.path.join(scriptDirectory, "report_branding/images/logo_reversed.svg")
+    iconFile =  os.path.join(scriptDirectory, "report_branding/images/favicon-revenera.ico")
+    statusApprovedIcon = os.path.join(scriptDirectory, "report_brandings/images/status_approved_selected.png")
+    statusRejectedIcon = os.path.join(scriptDirectory, "report_branding/images/status_rejected_selected.png")
+    statusDraftIcon = os.path.join(scriptDirectory, "report_branding/images/status_draft_ready_selected.png")
 
     logger.debug("cssFile: %s" %cssFile)
     logger.debug("imageFile: %s" %logoImageFile)
