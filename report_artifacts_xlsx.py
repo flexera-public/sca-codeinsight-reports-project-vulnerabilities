@@ -316,8 +316,10 @@ def display_project_hierarchy(worksheet, parentProject, row, column, boldCellFor
     # Are there more child projects for this project?
 
     if len(parentProject["childProject"]):
+        childProjects = parentProject["childProject"]
+        childProjects.sort(key=lambda item: item.get("name"))
+
         for childProject in parentProject["childProject"]:
-            projectID = childProject["id"]
             projectName = childProject["name"]
             # Add this ID to the list of projects with other child projects
             # and get then do it again
