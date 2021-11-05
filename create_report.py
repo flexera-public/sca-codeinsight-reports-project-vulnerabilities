@@ -91,9 +91,15 @@ def main():
 	logger.debug("    baseURL:  %s" %baseURL)	
 
 	if "errorMsg" in reportOptions.keys():
-		reportOptions["reportName"] = reportName
-		projectName = "Error"
-		reports = report_errors.create_error_report(reportOptions)
+		reportFileNameBase = reportName.replace(" ", "_") + "-Creation_Error-" + fileNameTimeStamp
+
+		reportData = {}
+		reportData["errorMsg"] = reportOptions["errorMsg"]
+		reportData["reportName"] = reportName
+		reportData["reportTimeStamp"] = datetime.strptime(fileNameTimeStamp, "%Y%m%d-%H%M%S").strftime("%B %d, %Y at %H:%M:%S")
+		reportData["reportFileNameBase"] = reportFileNameBase
+
+		reports = report_errors.create_error_report(reportData)
 		print("    *** ERROR  ***  Error found validating report options")
 	else:
 		reportData = report_data.gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions)
