@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.7] - 2021-11-08
+### Added
+- Add support for installer
+- Separate artifact creation
+- Common report name and timestamp
+- xlsx branding
+
+
 ## [3.0.6] - 2021-10-04
 ### Added
 - Add vulnerability published date
