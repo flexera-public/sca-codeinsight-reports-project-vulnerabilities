@@ -8,10 +8,9 @@ Created On : Fri Nov 05 2021
 File : report_artifacts_xlsx.py
 '''
 import logging
-
-from datetime import datetime
 import xlsxwriter
 
+import report_branding.xlsx.xlsx_formatting
 import _version
 
 logger = logging.getLogger(__name__)
@@ -20,7 +19,6 @@ logger = logging.getLogger(__name__)
 def generate_xlsx_report(reportData):
     logger.info("    Entering generate_xlsx_report")
 
-    reportName = reportData["reportName"]
     projectName  = reportData["projectName"]
     reportFileNameBase = reportData["reportFileNameBase"]
     reportTimeStamp =  reportData["reportTimeStamp"] 
@@ -29,20 +27,10 @@ def generate_xlsx_report(reportData):
     projectSummaryData = reportData["projectSummaryData"]
     applicationSummaryData = reportData["applicationSummaryData"]
     projectHierarchy = reportData["projectHierarchy"]
-     
-
+    
     cvssVersion = projectSummaryData["cvssVersion"]  # 2.0/3.x
     includeAssociatedFiles = projectSummaryData["includeAssociatedFiles"]  #True/False
     
-    # Colors for report
-    reveneraGray = '#323E48'
-    white = '#FFFFFF'
-    criticalVulnColor = "#400000"
-    highVulnColor = "#C00000"
-    mediumVulnColor = "#FFA500"
-    lowVulnColor = "#FFFF00"
-    noneVulnColor = "#D3D3D3"
-
     xlsxFile = reportFileNameBase + ".xlsx"
 
     # Create the workbook/worksheet for storying the data
@@ -52,48 +40,16 @@ def generate_xlsx_report(reportData):
     detailsWorksheet = workbook.add_worksheet('Vulnerability Details') 
     dataWorksheet = workbook.add_worksheet('Summary Data') 
 
-    tableHeaderFormat = workbook.add_format()
-    tableHeaderFormat.set_text_wrap()
-    tableHeaderFormat.set_bold()
-    tableHeaderFormat.set_bg_color(reveneraGray)
-    tableHeaderFormat.set_font_color(white)
-    tableHeaderFormat.set_font_size('12')
-    tableHeaderFormat.set_align('center')
-    tableHeaderFormat.set_align('vcenter')
-
-    cellFormat = workbook.add_format()
-    cellFormat.set_text_wrap()
-    cellFormat.set_align('center')
-    cellFormat.set_align('vcenter')
-    cellFormat.set_font_size('10')
-    cellFormat.set_border()
-    
-    cellDescriptionFormat = workbook.add_format()
-    cellDescriptionFormat.set_text_wrap()
-    cellDescriptionFormat.set_align('left')
-    cellDescriptionFormat.set_align('vcenter')
-    cellDescriptionFormat.set_font_size('10')
-    cellDescriptionFormat.set_border()
-
-    cellLinkFormat = workbook.add_format()
-    cellLinkFormat.set_text_wrap()
-    cellLinkFormat.set_align('center')
-    cellLinkFormat.set_align('vcenter')
-    cellLinkFormat.set_font_color('blue')
-    cellLinkFormat.set_font_size('10')
-    cellLinkFormat.set_underline()
-    cellLinkFormat.set_border()
-
-    boldCellFormat = workbook.add_format()
-    boldCellFormat.set_align('vcenter')
-    boldCellFormat.set_font_size('12')
-    boldCellFormat.set_bold()
+    cellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.standardCellFormatProperties)
+    cellLinkFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.linkCellFormatProperties)
+    hierarchyCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.hierarchyCellFormatProperties)
+    tableHeaderFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.tableHeaderFormatProperties)
 
     # Create cell formats for the different vuln bands
-    criticalVulnerabilityCell = workbook.add_format({'bg_color': criticalVulnColor,'font_color': white})
-    highVulnerabilityCell = workbook.add_format({'bg_color': highVulnColor,'font_color':  white})
-    mediumVulnerabilityCell = workbook.add_format({'bg_color': mediumVulnColor})
-    lowVulnerabilityCell = workbook.add_format({'bg_color': lowVulnColor})
+    criticalVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.criticalVulnerabilityCellFormat)
+    highVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.highVulnerabilityCellFormat)
+    mediumVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.mediumVulnerabilityCellFormat)
+    lowVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.lowVulnerabilityCellFormat)
 
     #############################################################################
     #  Create the summary charts based on the data from the Summary Data tab
@@ -101,15 +57,32 @@ def generate_xlsx_report(reportData):
 
     defaultChartWidth = 700
     summaryChartHeight = 150
-    catagoryHeaderRow = 6      # Where is the header row on the Summary Data sheet
+    catagoryHeaderRow = 1      # Where is the header row on the Summary Data sheet
     applicationSummaryRow = catagoryHeaderRow + 1  # Where is the summary data on the Summary Data sheet
 
+
+    if cvssVersion == "3.x": 
+        vulnerabilityBarColors = [report_branding.xlsx.xlsx_formatting.criticalVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.highVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.mediumVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.lowVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.noneVulnColor]
+        vulnerabiltyDataStartColumn = 1 # Start data in Column B on the Summary Data sheet
+    else:
+        vulnerabilityBarColors = [report_branding.xlsx.xlsx_formatting.highVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.mediumVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.lowVulnColor, 
+                                    report_branding.xlsx.xlsx_formatting.noneVulnColor]
+        vulnerabiltyDataStartColumn = 2 # Start data in Column C on the Summary Data sheet
+
+
     if len(projectList) > 1:
-        summaryWorksheet.merge_range('B2:M2', "Project Hierarchy", tableHeaderFormat)
+
+        summaryWorksheet.merge_range('B4:M4', "Project Hierarchy", tableHeaderFormat)
         summaryWorksheet.set_column('A:Z', 2)
                 
-        summaryWorksheet.write('C4', projectName, boldCellFormat) # Row 3, column 2
-        display_project_hierarchy(summaryWorksheet, projectHierarchy, 3, 2, boldCellFormat)
+        summaryWorksheet.write('C6', projectName, hierarchyCellFormat) # Row 5, column 2
+        display_project_hierarchy(summaryWorksheet, projectHierarchy, 5, 2, hierarchyCellFormat)
 
         ############################################################################################################
         #  Vulnerability Summary Chart
@@ -119,13 +92,6 @@ def generate_xlsx_report(reportData):
         applicationVulnerabilitySummaryChart.set_size({'width': defaultChartWidth, 'height': summaryChartHeight})
         applicationVulnerabilitySummaryChart.set_legend({'position': 'bottom'})
         applicationVulnerabilitySummaryChart.set_y_axis({'reverse': True})
-
-        if cvssVersion == "3.x": 
-            vulnerabilityBarColors = [criticalVulnColor, highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
-            vulnerabiltyDataStartColumn = 1 # Start data in Column B on the Summary Data sheet
-        else:
-            vulnerabilityBarColors = [highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
-            vulnerabiltyDataStartColumn = 2 # Start data in Column C on the Summary Data sheet
         
         for columnIndex in range(0, len(vulnerabilityBarColors)):
 
@@ -150,13 +116,6 @@ def generate_xlsx_report(reportData):
     projectVulnerabilitySummaryChart.set_size({'width': defaultChartWidth, 'height': summaryChartHeight + (len(projectList)* 30)})
     projectVulnerabilitySummaryChart.set_legend({'position': 'bottom'})
     projectVulnerabilitySummaryChart.set_y_axis({'reverse': True})
-
-    if cvssVersion == "3.x": 
-        vulnerabilityBarColors = [criticalVulnColor, highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
-        vulnerabiltyDataStartColumn = 1 # Start data in Column B
-    else:
-        vulnerabilityBarColors = [highVulnColor, mediumVulnColor, lowVulnColor, noneVulnColor]
-        vulnerabiltyDataStartColumn = 2 # Start data in Column C
     
     for columnIndex in range(0, len(vulnerabilityBarColors)):
 
@@ -168,8 +127,12 @@ def generate_xlsx_report(reportData):
 
 
     if len(projectList) == 1:
-        summaryWorksheet.insert_chart('B2', projectVulnerabilitySummaryChart)
+        summaryWorksheet.merge_range('A1:F1', "Report Generated: %s" %reportTimeStamp)
+        summaryWorksheet.merge_range('A2:F2', "Report Version: %s" %_version.__version__)
+        summaryWorksheet.insert_chart('B4', projectVulnerabilitySummaryChart)
     else:
+        summaryWorksheet.merge_range('A1:U1', "Report Generated: %s" %reportTimeStamp)
+        summaryWorksheet.merge_range('A2:U2', "Report Version: %s" %_version.__version__)
         summaryWorksheet.insert_chart('AA9', projectVulnerabilitySummaryChart)
 
 
@@ -232,7 +195,10 @@ def generate_xlsx_report(reportData):
             if includeAssociatedFiles:
                 associatedFiles = "\n".join(affectedComponent[6])
             
-            components += componentName + " - " + componentVersionName + " (" + projectName + ")  \n"
+            if len(projectList) > 1:
+                components += componentName + " - " + componentVersionName + " (" + projectName + ")  \n"
+            else:
+                components += componentName + " - " + componentVersionName + "\n"
 
         # Trim the last new line
         components=components[:-2]
@@ -249,22 +215,22 @@ def generate_xlsx_report(reportData):
         detailsWorksheet.write(row, 5, vulnerabilitySource, cellFormat)
         detailsWorksheet.write(row, 6, publishedDate, cellFormat)
         detailsWorksheet.write(row, 7, modifiedDate, cellFormat)
-        detailsWorksheet.write(row, 8, vulnerabilityDescription, cellDescriptionFormat)
+        detailsWorksheet.write(row, 8, vulnerabilityDescription, cellFormat)
 
         if includeAssociatedFiles:
-            detailsWorksheet.write(row, 9, associatedFiles, cellDescriptionFormat)
+            detailsWorksheet.write(row, 9, associatedFiles, cellFormat)
 
         row+=1
 
     # Apply conditional formatting for the CVSS scores 
     if cvssVersion == "3.x": 
-        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCell})
-        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCell})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCellFormat})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCellFormat})
     else: 
-        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCell})
+        detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 10,'format': highVulnerabilityCellFormat})
 
-    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCell})
-    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCell})
+    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 4, 'maximum': 6.9,'format': mediumVulnerabilityCellFormat})
+    detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCellFormat})
 
     # Automatically create the filter sort options
     detailsWorksheet.autofilter(0,0, 0 + len(vulnerabilityDetails)-1, len(tableHeaders)-1)
@@ -273,9 +239,6 @@ def generate_xlsx_report(reportData):
     #############################################################################
     #  Populate the Summary Data details
     #############################################################################
-
-    dataWorksheet.merge_range('B1:F1', "Report Gernerated: %s" %(datetime.now().strftime("%B %d, %Y at %H:%M:%S")))
-    dataWorksheet.merge_range('B2:F2', "Report Version: %s" %_version.__version__)
 
     # Add the summary data for bar graphs
     if cvssVersion == "3.x": 
@@ -305,6 +268,8 @@ def generate_xlsx_report(reportData):
     dataWorksheet.write_column('F' + str(catagoryHeaderRow +3), projectSummaryData["numNoneVulnerabilities"])  
 
     workbook.close()
+
+    logger.info("    Exiting generate_xlsx_report")
 
     return xlsxFile
 

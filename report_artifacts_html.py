@@ -39,17 +39,6 @@ def generate_html_report(reportData):
     cssFile =  os.path.join(scriptDirectory, "report_branding/css/revenera_common.css")
     logoImageFile =  os.path.join(scriptDirectory, "report_branding/images/logo_reversed.svg")
     iconFile =  os.path.join(scriptDirectory, "report_branding/images/favicon-revenera.ico")
-    statusApprovedIcon = os.path.join(scriptDirectory, "report_brandings/images/status_approved_selected.png")
-    statusRejectedIcon = os.path.join(scriptDirectory, "report_branding/images/status_rejected_selected.png")
-    statusDraftIcon = os.path.join(scriptDirectory, "report_branding/images/status_draft_ready_selected.png")
-
-    logger.debug("cssFile: %s" %cssFile)
-    logger.debug("imageFile: %s" %logoImageFile)
-    logger.debug("iconFile: %s" %iconFile)
-    logger.debug("statusApprovedIcon: %s" %statusApprovedIcon)
-    logger.debug("statusRejectedIcon: %s" %statusRejectedIcon)
-    logger.debug("statusDraftIcon: %s" %statusDraftIcon)
-
 
     #########################################################
     #  Encode the image files
@@ -64,7 +53,7 @@ def generate_html_report(reportData):
     try:
         html_ptr = open(htmlFile,"w")
     except:
-        logger.error("Failed to open htmlfile %s:" %htmlFile)
+        logger.error("        Failed to open htmlfile %s:" %htmlFile)
         raise
 
     html_ptr.write("<html>\n") 
@@ -86,12 +75,11 @@ def generate_html_report(reportData):
     # Add the contents of the css file to the head block
     try:
         f_ptr = open(cssFile)
-        logger.debug("Adding css file details")
         for line in f_ptr:
             html_ptr.write("            %s" %line)
         f_ptr.close()
     except:
-        logger.error("Unable to open %s" %cssFile)
+        logger.error("        Unable to open %s" %cssFile)
         print("Unable to open %s" %cssFile)
 
     html_ptr.write("        </style>\n")  
@@ -363,7 +351,6 @@ def encodeImage(imageFile):
     # Create base64 variable for branding image
     try:
         with open(imageFile,"rb") as image:
-            logger.debug("Encoding image: %s" %imageFile)
             encodedImage = base64.b64encode(image.read())
             return encodedImage
     except:
@@ -431,7 +418,7 @@ def add_default_chart_options(html_ptr):
 
 #----------------------------------------------------------------------------------------#
 def generate_application_summary_chart(html_ptr, applicationSummaryData):
-    logger.info("Entering generate_application_summary_chart")
+    logger.info("        Entering generate_application_summary_chart")
 
     cvssVersion = applicationSummaryData["cvssVersion"]
    
@@ -487,7 +474,7 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
 
 #----------------------------------------------------------------------------------------#
 def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
-    logger.info("Entering generate_project_hierarchy_tree")
+    logger.info("        Entering generate_project_hierarchy_tree")
 
     html_ptr.write('''var hierarchy = [\n''')
 
@@ -527,7 +514,7 @@ def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
 
 #----------------------------------------------------------------------------------------#
 def generate_project_summary_charts(html_ptr, projectSummaryData):
-    logger.info("Entering generate_project_summary_charts")
+    logger.info("        Entering generate_project_summary_charts")
     cvssVersion = projectSummaryData["cvssVersion"]
 
     html_ptr.write(''' 

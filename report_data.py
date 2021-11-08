@@ -96,6 +96,9 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             componentName = inventoryItem["componentName"]
             componentVersionName = inventoryItem["componentVersionName"]
             associatedFiles = inventoryItem["filePaths"]
+            inventoryItemName = inventoryItem["name"]
+
+            logger.debug("        Project:  %s   Inventory Name: %s  Inventory ID: %s" %(projectName, inventoryItemName, inventoryID))
 
             inventoryItemLink = baseURL + '''/codeinsight/FNCI#myprojectdetails/?id=''' + str(projectID) + '''&tab=projectInventory&pinv=''' + str(inventoryID)
 
@@ -138,10 +141,11 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
                 else:
-                    logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
+                    logger.debug("            No vulnerabilities for % s - %s   Inventory ID: %s" %(componentName, componentVersionName, inventoryID))
 
             except:
-                logger.debug("No vulnerabilities for % s - %s - %s" %(inventoryID, componentName, componentVersionName))
+                logger.debug("            No vulnerabilities for % s - %s   Inventory ID: %s" %(componentName, componentVersionName, inventoryID))
+
 
     # Sort the vulnerability dict by score (high to low)
     sortedVulnerabilityDetails = OrderedDict(sorted(vulnerabilityDetails.items(), key=lambda t: (  "-1" if t[1]["vulnerabilityScore"] == "N/A"  else str(t[1]["vulnerabilityScore"] )    )  ,               reverse=True ) )
