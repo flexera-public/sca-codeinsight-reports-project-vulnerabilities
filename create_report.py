@@ -205,8 +205,8 @@ def create_report_zipfile(reportOutputs, reportFileNameBase):
 		allFormatsZip.write(format)
 
 	allFormatsZip.close()
-	logger.debug("        Downloadable archive created")
-	print("            Downloadable archive created")
+	logger.debug("    Downloadable archive created")
+	print("    Downloadable archive created")
 
 	# Now create a temp zipfile of the zipfile along with the viewable file itself
 	uploadZipflle = allFormatZipFile.replace(".zip", "_upload.zip")
