@@ -250,9 +250,17 @@ def generate_html_report(reportData):
 
             if includeAssociatedFiles:
                 associatedFiles = "\n".join(affectedComponent[6])
+
+
+
+            if len(projectList) > 1:
+                html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a>\n" %(inventoryItemLink, componentName, componentVersionName))
+                html_ptr.write("<a href=\"%s\" target=\"_blank\">  (%s)</a><br>\n" %(projectLink, projectName)) 
+            else:
+                html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a><br>\n" %(inventoryItemLink, componentName, componentVersionName))
+
             
-            html_ptr.write("<a href=\"%s\" target=\"_blank\">%s - %s</a>\n" %(inventoryItemLink, componentName, componentVersionName))
-            html_ptr.write("<a href=\"%s\" target=\"_blank\">  (%s)</a><br>\n" %(projectLink, projectName)) 
+
         
         html_ptr.write("</td>\n")
 
