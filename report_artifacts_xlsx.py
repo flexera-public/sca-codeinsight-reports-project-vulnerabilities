@@ -201,7 +201,7 @@ def generate_xlsx_report(reportData):
                 components += componentName + " - " + componentVersionName + "\n"
 
         # Trim the last new line
-        components=components[:-2]
+        components = components.rstrip()
 
         # Now write each cell
         detailsWorksheet.write_url(row, 0, vulnerabilityUrl, cellLinkFormat, string=vulnerability)
