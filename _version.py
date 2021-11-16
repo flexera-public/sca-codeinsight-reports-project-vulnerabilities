@@ -7,4 +7,4 @@ Author : sgeary
 Created On : Mon Oct 05 2020
 File : _version.py
 '''
-__version__ = "3.0.7"
+__version__ = "3.0.8"
