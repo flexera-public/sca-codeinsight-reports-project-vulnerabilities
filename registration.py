@@ -20,26 +20,47 @@ import CodeInsight_RESTAPIs.reports.create_report
 import CodeInsight_RESTAPIs.reports.delete_report
 import CodeInsight_RESTAPIs.reports.update_report
 
+###################################################################################
+# Test the version of python to make sure it's at least the version the script
+# was tested on, otherwise there could be unexpected results
+if sys.version_info <= (3, 5):
+    raise Exception("The current version of Python is less than 3.5 which is unsupported.\n Script created/tested against python version 3.8.1. ")
+else:
+    pass
+
+propertiesFile = "../server_properties.json"  # Created by installer or manually
+logfileName = "_custom_report_registration.log"
+
+###################################################################################
+#  Set up logging handler to allow for different levels of logging to be capture
+logging.basicConfig(format='%(asctime)s,%(msecs)-3d  %(levelname)-8s [%(filename)-25s:%(lineno)-4d]  %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', filename=logfileName, filemode='w',level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logging.getLogger("urllib3").setLevel(logging.WARNING)  # Disable logging for requests module
 
 #####################################################################################################
 #  Code Insight System Information
 #  See if there is a common file for config details
-try:
-    ptr = open("../server_properties.json")
-    configData = json.load(ptr)
-    baseURL = configData["core.server.url"]
-    adminAuthToken = configData["core.server.token"]
-    ptr.close()
-except:
+if os.path.exists(propertiesFile):
+    try:
+        file_ptr = open(propertiesFile, "r")
+        configData = json.load(file_ptr)
+        baseURL = configData["core.server.url"]
+        adminAuthToken = configData["core.server.token"]
+        file_ptr.close()
+        logger.info("Loading config data from properties file: %s" %propertiesFile)
+    except:
+        logger.error("Unable to open properties file: %s" %propertiesFile)
+else:
+    logger.info("Using config data from create_report.py")
     baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
     adminAuthToken = "UPDATEME"
 
 #####################################################################################################
 # Quick sanity check
 if adminAuthToken == "UPDATEME" or baseURL == "UPDATEME":
-    print("Make sure baseURL and the admin authorization token have been updated within registration.py or common_config.json")
+    logger.error("Make sure baseURL and the admin authorization token have been updated within registration.py")
+    print("Make sure baseURL and the admin authorization token have been updated within registration.py")
     sys.exit()
-
 
 #####################################################################################################
 #  Report Details
@@ -78,8 +99,6 @@ reportOption["required"] = "true"
 reportOption["order"] = "3"
 reportOptions.append(reportOption)
 
-
-
 #####################################################################################################
 # The path with the custom_report_scripts folder to called via the framework
 if sys.platform.startswith('linux'):
@@ -95,21 +114,6 @@ else:
 currentFolderName = os.path.basename(os.getcwd())
 
 reportPath = currentFolderName + "/" + reportHelperScript     
-
-###################################################################################
-# Test the version of python to make sure it's at least the version the script
-# was tested on, otherwise there could be unexpected results
-if sys.version_info <= (3, 5):
-    raise Exception("The current version of Python is less than 3.5 which is unsupported.\n Script created/tested against python version 3.8.1. ")
-else:
-    pass
-
-###################################################################################
-#  Set up logging handler to allow for different levels of logging to be capture
-logging.basicConfig(format='%(asctime)s,%(msecs)d %(levelname)-8s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y-%m-%d:%H:%M:%S',
-
-filename="_custom_report_registration.log", filemode='w',level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 # Create command line argument options
 parser = argparse.ArgumentParser()
