@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.0.10] - 2021-12-15
+### Changed
+- Updated requirements
+
 ## [3.0.9] - 2021-12-01
 ### Changed
 - Update submodules to flexera-public repos
