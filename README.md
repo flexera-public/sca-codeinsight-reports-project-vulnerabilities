@@ -88,9 +88,8 @@ This report is executed directly from within Revenera's Code Insight product. Fr
 The following report options can be set once the report generation has been initiated:
 
 - Including child projects (True/False) - Determine if child project data will be included or not.
-- Include compliance information - (True/False) - Include compliance related data.
-- Maximum number of versions back - (Integer value) - The number of newer released versions of a component which is acceptable for compliance purposes.
 - CVSS Version - (2.0/3.x) - Specify which CVSS version for vulnerability data.
+- Include associated file (True/False) - Include files assocaited with inventory item containing vulnerability
 
 The Code Insight Custom Report Framework will provide the following to the custom report when initiated:
 
