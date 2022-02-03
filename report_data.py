@@ -98,6 +98,20 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             associatedFiles = inventoryItem["filePaths"]
             inventoryItemName = inventoryItem["name"]
 
+            # This field was added in 2021R4 so if earlier release add the list
+            try:
+                customFields = inventoryItem["customFields"]
+            except:
+                customFields = [] 
+
+            ignoreList = []
+            # Create a list of the vulnerabilities to be ignored
+            for field in customFields:
+                if field["fieldLabel"] == "Vulnerability Ignore List":
+                    cves = field["value"]
+                    if cves:
+                        ignoreList = cves.split('\n')
+
             logger.debug("        Project:  %s   Inventory Name: %s  Inventory ID: %s" %(projectName, inventoryItemName, inventoryID))
 
             inventoryItemLink = baseURL + '''/codeinsight/FNCI#myprojectdetails/?id=''' + str(projectID) + '''&tab=projectInventory&pinv=''' + str(inventoryID)
@@ -109,6 +123,11 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                 if len(vulnerabilities):
                     for vulnearbility in vulnerabilities:
                         vulnerabilityName = vulnearbility["vulnerabilityName"]
+                        
+                        # Should this vulnerability be ignored?
+                        if vulnerabilityName in ignoreList:
+                            logger.debug("            Ignoring vulnerability %s" %vulnerabilityName)
+                            break
 
                         # Does it already exist and if so just append the component data
                         if vulnerabilityName in vulnerabilityDetails:
