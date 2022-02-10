@@ -179,16 +179,18 @@ def create_project_hierarchy(project, parentID, projectList, baseURL):
 
         # Sort by project name of child projects
         for childProject in sorted(project["childProject"], key = lambda i: i['name'] ) :
-
+            
+            uniqueProjectID = str(parentID) + "-" + str(childProject["id"])
             nodeDetails = {}
             nodeDetails["projectID"] = childProject["id"]
             nodeDetails["parent"] = parentID
+            nodeDetails["uniqueID"] = uniqueProjectID
             nodeDetails["projectName"] = childProject["name"]
             nodeDetails["projectLink"] = baseURL + "/codeinsight/FNCI#myprojectdetails/?id=" + str(childProject["id"]) + "&tab=projectInventory"
 
             projectList.append( nodeDetails )
 
-            create_project_hierarchy(childProject, childProject["id"], projectList, baseURL)
+            create_project_hierarchy(childProject, uniqueProjectID, projectList, baseURL)
 
     return projectList
 

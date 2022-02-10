@@ -488,6 +488,12 @@ def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
 
     for project in projectHierarchy:
 
+        # is this the top most parent or a child project with a parent
+        if "uniqueID" in project:
+            projectIdentifier = project["uniqueID"]
+        else:
+            projectIdentifier = project["projectID"]
+
         html_ptr.write('''{
             'id': '%s', 
             'parent': '%s', 
@@ -495,7 +501,7 @@ def generate_project_hierarchy_tree(html_ptr, projectHierarchy):
             'a_attr': {
                 'href': '%s'
             }
-        },\n'''  %(project["projectID"], project["parent"], project["projectName"], project["projectLink"]))
+        },\n'''  %(projectIdentifier, project["parent"], project["projectName"], project["projectLink"]))
 
     html_ptr.write('''\n]''')
 
