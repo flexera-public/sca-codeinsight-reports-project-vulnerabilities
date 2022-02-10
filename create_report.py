@@ -70,6 +70,16 @@ def main():
 			logger.info("Using baseURL from properties file: %s" %propertiesFile)
 		except:
 			logger.error("Unable to open properties file: %s" %propertiesFile)
+
+		# Is there a self signed certificate to consider?
+		try:
+			certificatePath = configData["core.server.certificate"]
+			os.environ["REQUESTS_CA_BUNDLE"] = certificatePath
+			os.environ["SSL_CERT_FILE"] = certificatePath
+			logger.info("Self signed certificate added to env")
+		except:
+			logger.info("No self signed certificate in properties file")
+
 	else:
 		baseURL = "http://localhost:8888"   # Required if the core.server.properties files is not used
 		logger.info("Using baseURL from create_report.py")
