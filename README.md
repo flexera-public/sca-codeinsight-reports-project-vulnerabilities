@@ -2,6 +2,8 @@
  
 The `sca-codeinsight-reports-project-vulnerability` repository is a example report for Revenera's Code Insight product. This report allows a user to get a project level view based on the vulnerabilities associated to the inventory items within the project.  This report will take into account any child projects (recursively) and roll up the associated vulnerability information on a project as well as an application basis.  A display a hierarchy chart of the project structure is also provided.
 
+Vulnerabilities can be ignored within the report by using custom invnetory field named `Vulnerability Ignore List`.  Any vulnerability listed within this inventory field will not be included within the report artifacts.
+
 This repository utilizes the following via CDN for the creation of the report artifacts.
 
 -  [Bootstrap](https://getbootstrap.com/)
@@ -21,6 +23,7 @@ This repository utilizes the following via CDN for the creation of the report ar
 |2.0.x |2020R4 |
 |2.1.x |2021R1 |
 |3.0.x |2021R2 |
+|3.1.x |2021R4 |
 
 **Repository Cloning**
 
