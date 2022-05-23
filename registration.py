@@ -163,13 +163,12 @@ def register_custom_reports():
 
     try:
         reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
-        print("%s has been registed with a report ID of %s" %(reportName, reportID))
-        logger.info("%s has been registed with a report ID of %s" %(reportName, reportID))
+        print("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
+        logger.info("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
     except:
-        logger.error("Unable to register report %s" %reportName)
-        print("Unable to register report %s.  See log file for details" %reportName)
+        logger.error("Report registration failed! Unable to registered report %s" %reportName)
+        print("Report registration failed! Unable to registered report %s.  See log file for details" %reportName)
         sys.exit()
-
 
 #-----------------------------------------------------------------------#
 def unregister_custom_reports():
