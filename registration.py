@@ -176,8 +176,8 @@ def unregister_custom_reports():
 
     try:
         CodeInsight_RESTAPIs.reports.delete_report.unregister_report(baseURL, adminAuthToken, reportName)
-        print("%s has been unregisted." %reportName)
-        logger.info("%s has been unregisted."%reportName)
+        print("%s has been unregistered." %reportName)
+        logger.info("%s has been unregistered."%reportName)
     except:
         logger.error("Unable to unregister report %s" %reportName)
         print("Unable to unregister report %s.  See log file for details" %reportName)
