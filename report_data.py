@@ -66,25 +66,13 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
         # Create empty dictionary for project level data for this project
         projectData[projectName] = {}
 
-        # Get project information with rollup summary data
-        try:
-            projectInformation = CodeInsight_RESTAPIs.project.get_project_information.get_project_information_summary(baseURL, projectID, authToken)
-        except:
-            logger.error("    No Project Information Returned!")
-            print("No Project Information Returned.")
-            return -1
-
         if cvssVersion == "3.x":
-            projectData[projectName]["numCriticalVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Critical"]
-            projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["High"]
-            projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Medium"]
-            projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["Low"]
-            projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV3"]["None"]
-        else:
-            projectData[projectName]["numHighVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["High"]
-            projectData[projectName]["numMediumVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Medium"]
-            projectData[projectName]["numLowVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Low"]
-            projectData[projectName]["numNoneVulnerabilities"] = projectInformation["vulnerabilities"]["CvssV2"]["Unknown"]
+            projectData[projectName]["numCriticalVulnerabilities"] = 0
+
+        projectData[projectName]["numHighVulnerabilities"] = 0
+        projectData[projectName]["numMediumVulnerabilities"] = 0
+        projectData[projectName]["numLowVulnerabilities"] = 0
+        projectData[projectName]["numNoneVulnerabilities"] = 0
 
         # Grab the full project inventory to get specific vulnerability details
         full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
@@ -98,6 +86,21 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             associatedFiles = inventoryItem["filePaths"]
             inventoryItemName = inventoryItem["name"]
 
+            # This field was added in 2021R4 so if earlier release add the list
+            try:
+                customFields = inventoryItem["customFields"]
+            except:
+                customFields = [] 
+
+            vulnerabilityIgnoreList = []
+            # Create a list of the vulnerabilities to be ignored
+            for customField in customFields:
+                if customField["fieldLabel"] == "Vulnerability Ignore List":
+                    ignoredCVEs = customField["value"]
+                    if ignoredCVEs:
+                        # Create a list from the string response and remove white space
+                        vulnerabilityIgnoreList = [cve.strip() for cve in ignoredCVEs.split('\n')]
+
             logger.debug("        Project:  %s   Inventory Name: %s  Inventory ID: %s" %(projectName, inventoryItemName, inventoryID))
 
             inventoryItemLink = baseURL + '''/codeinsight/FNCI#myprojectdetails/?id=''' + str(projectID) + '''&tab=projectInventory&pinv=''' + str(inventoryID)
@@ -109,9 +112,12 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                 if len(vulnerabilities):
                     for vulnearbility in vulnerabilities:
                         vulnerabilityName = vulnearbility["vulnerabilityName"]
-
-                        # Does it already exist and if so just append the component data
-                        if vulnerabilityName in vulnerabilityDetails:
+                        
+                        if vulnerabilityName in vulnerabilityIgnoreList:
+                            # Should this vulnerability be ignored?
+                            logger.info("            Ignoring vulnerability %s for this component" %(vulnerabilityName))
+                        elif vulnerabilityName in vulnerabilityDetails:
+                            # Does it already exist and if so just append the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
                         else:
                             # It's a new key so get all of the important data
@@ -140,6 +146,19 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
+                                                
+                            # Increment count based on severity to account for ignore list
+                            if (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "CRITICAL":
+                                projectData[projectName]["numCriticalVulnerabilities"] +=1
+                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "HIGH":
+                                projectData[projectName]["numHighVulnerabilities"] +=1
+                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "MEDIUM":
+                                projectData[projectName]["numMediumVulnerabilities"] +=1
+                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "LOW":
+                                projectData[projectName]["numLowVulnerabilities"] +=1
+                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "N/A":
+                                projectData[projectName]["numNoneVulnerabilities"] +=1
+
                 else:
                     logger.debug("            No vulnerabilities for % s - %s   Inventory ID: %s" %(componentName, componentVersionName, inventoryID))
 
