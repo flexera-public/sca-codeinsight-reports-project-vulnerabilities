@@ -94,6 +94,12 @@ The following report options can be set once the report generation has been init
 - CVSS Version - (2.0/3.x) - Specify which CVSS version for vulnerability data.
 - Include associated file (True/False) - Include files assocaited with inventory item containing vulnerability
 
+The generated reports will utilize the following Inventory Custom Field if available
+- Vulnerability Ignore List
+
+CVE values entered into this field will be removed from the results of the **Project Vulnerability Report**
+
+
 The Code Insight Custom Report Framework will provide the following to the custom report when initiated:
 
 - Project ID

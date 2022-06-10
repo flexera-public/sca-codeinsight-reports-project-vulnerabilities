@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.1.0] - 2022-06-10
+### Added
+- Remove from report the CVEs added to the Vulnerability Ignore List custom inventory field
+
 ## [3.0.12] - 2022-05-23
 ### Fixed
 - Registration updates
