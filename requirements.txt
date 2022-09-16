@@ -1,7 +1,6 @@
-certifi==2021.10.8
-chardet==4.0.0
-charset-normalizer==2.0.9
-idna==3.3
-requests==2.26.0
-urllib3==1.26.7
-XlsxWriter==3.0.2
+certifi==2022.9.14
+charset-normalizer==2.1.1
+idna==3.4
+requests==2.28.1
+urllib3==1.26.12
+XlsxWriter==3.0.3
