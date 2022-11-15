@@ -99,7 +99,9 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                     ignoredCVEs = customField["value"]
                     if ignoredCVEs:
                         # Create a list from the string response and remove white space
-                        vulnerabilityIgnoreList = [cve.strip() for cve in ignoredCVEs.split('\n')]
+                        for cve in ignoredCVEs.split('\n'):
+                            cveValue = cve.split('|') # If a reason was provided for exclusion report
+                            vulnerabilityIgnoreList.append(cveValue[0].strip())
 
             logger.debug("        Project:  %s   Inventory Name: %s  Inventory ID: %s" %(projectName, inventoryItemName, inventoryID))
 
@@ -108,23 +110,27 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             try:
                 vulnerabilities = inventoryItem["vulnerabilities"]
 
-                # There is a key but see if there is any data
+                # There is a vulnerability key for this inventory item
                 if len(vulnerabilities):
                     for vulnearbility in vulnerabilities:
                         vulnerabilityName = vulnearbility["vulnerabilityName"]
                         
                         if vulnerabilityName in vulnerabilityIgnoreList:
                             # Should this vulnerability be ignored?
-                            logger.info("            Ignoring vulnerability %s for this component" %(vulnerabilityName))
-                        elif vulnerabilityName in vulnerabilityDetails:
-                            # Does it already exist and if so just append the component data
+                            logger.info("            Ignoring vulnerability %s for this component in project %s" %(vulnerabilityName, projectName))
+                        
+                        elif vulnerabilityName in vulnerabilityDetails and projectName in vulnerabilityDetails[vulnerabilityName]["affectedProjects"]:
+                            # Is it already in the list for this project?
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
+                        
                         else:
-                            # It's a new key so get all of the important data
+                            # This is a new vulnerability to track
                             vulnerabilityDetails[vulnerabilityName] = {}
+                            vulnerabilityDetails[vulnerabilityName]["affectedProjects"] = [projectName]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilityDescription"] = vulnearbility["vulnerabilityDescription"]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilitySource"] = vulnearbility["vulnerabilitySource"]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilityUrl"] = vulnearbility["vulnerabilityUrl"]
+                            
                             if cvssVersion == "3.x":
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV3Severity"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV3Score"]
@@ -146,23 +152,27 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
                             # Create a list of lists to hold the component data
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"] = []
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
-                                                
+
                             # Increment count based on severity to account for ignore list
-                            if (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "CRITICAL":
+                            severity = vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]
+                            
+                            if severity == "CRITICAL":
                                 projectData[projectName]["numCriticalVulnerabilities"] +=1
-                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "HIGH":
+                            elif severity== "HIGH":
                                 projectData[projectName]["numHighVulnerabilities"] +=1
-                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "MEDIUM":
+                            elif severity == "MEDIUM":
                                 projectData[projectName]["numMediumVulnerabilities"] +=1
-                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "LOW":
+                            elif severity == "LOW":
                                 projectData[projectName]["numLowVulnerabilities"] +=1
-                            elif (vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]) == "N/A":
+                            elif severity == "N/A":
                                 projectData[projectName]["numNoneVulnerabilities"] +=1
 
                 else:
+                    # There is a vulnerability key in the reponse for this inventory item but it is empty
                     logger.debug("            No vulnerabilities for % s - %s   Inventory ID: %s" %(componentName, componentVersionName, inventoryID))
 
             except:
+                # There was no vulnerability key in the reponse for this inventory item
                 logger.debug("            No vulnerabilities for % s - %s   Inventory ID: %s" %(componentName, componentVersionName, inventoryID))
 
 
