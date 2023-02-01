@@ -97,7 +97,7 @@ def generate_html_report(reportData):
     html_ptr.write("<!-- BEGIN HEADER -->\n")
     html_ptr.write("<div class='header'>\n")
     html_ptr.write("  <div class='logo'>\n")
-    html_ptr.write("    <img src='data:image/svg+xml;base64,{}' style='width: 400px;'>\n".format(encodedLogoImage.decode('utf-8')))
+    html_ptr.write("    <img src='data:image/svg+xml;base64,{}' style='height: 5%;'>\n".format(encodedLogoImage.decode('utf-8')))
     html_ptr.write("  </div>\n")
     html_ptr.write("<div class='report-title'>%s</div>\n" %reportName)
     html_ptr.write("</div>\n")
