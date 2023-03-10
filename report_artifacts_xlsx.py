@@ -233,7 +233,8 @@ def generate_xlsx_report(reportData):
     detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 0.1, 'maximum': 3.9,'format': lowVulnerabilityCellFormat})
 
     # Automatically create the filter sort options
-    detailsWorksheet.autofilter(0,0, 0 + len(vulnerabilityDetails)-1, len(tableHeaders)-1)
+    if len(vulnerabilityDetails):
+        detailsWorksheet.autofilter(0,0, 0 + len(vulnerabilityDetails)-1, len(tableHeaders)-1)
 
 
     #############################################################################
