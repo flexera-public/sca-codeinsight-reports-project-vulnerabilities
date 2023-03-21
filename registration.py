@@ -1,19 +1,13 @@
 '''
-Copyright 2020 Flexera Software LLC
+Copyright 2023 Flexera Software LLC
 See LICENSE.TXT for full license text
 SPDX-License-Identifier: MIT
 
 Author : sgeary  
-Created On : Sun Aug 16 2020
+Created On : Fri Feb 24 2023
 File : registration.py
 '''
-
-import sys
-import os
-import stat
-import logging
-import argparse
-import json
+import sys, os, logging, argparse, json, stat
 
 import CodeInsight_RESTAPIs.reports.get_reports
 import CodeInsight_RESTAPIs.reports.create_report
@@ -23,19 +17,23 @@ import CodeInsight_RESTAPIs.reports.update_report
 ###################################################################################
 # Test the version of python to make sure it's at least the version the script
 # was tested on, otherwise there could be unexpected results
-if sys.version_info <= (3, 5):
-    raise Exception("The current version of Python is less than 3.5 which is unsupported.\n Script created/tested against python version 3.8.1. ")
+if sys.version_info <= (3, 6):
+    raise Exception("The current version of Python is less than 3.6 which is unsupported.\n Script created/tested against python version 3.10.1. ")
 else:
     pass
 
+logfilePath = os.path.dirname(os.path.realpath(__file__)) 
+logfileName = "_" + os.path.basename(__file__).split('.')[0] + ".log"
+logfile = os.path.join(logfilePath, logfileName)
+
 propertiesFile = "../server_properties.json"  # Created by installer or manually
-logfileName = "_custom_report_registration.log"
+configurationFile = "registration_config.json"
 
 ###################################################################################
 #  Set up logging handler to allow for different levels of logging to be capture
-logging.basicConfig(format='%(asctime)s,%(msecs)-3d  %(levelname)-8s [%(filename)-25s:%(lineno)-4d]  %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', filename=logfileName, filemode='w',level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s,%(msecs)-3d  %(levelname)-8s [%(filename)-30s:%(lineno)-4d]  %(message)s', datefmt='%Y-%m-%d:%H:%M:%S', filename=logfile, filemode='w',level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-logging.getLogger("urllib3").setLevel(logging.WARNING)  # Disable logging for requests module
+logging.getLogger('urllib3').setLevel(logging.CRITICAL)  # Disable logging for module
 
 #####################################################################################################
 #  Code Insight System Information
@@ -44,60 +42,60 @@ if os.path.exists(propertiesFile):
     try:
         file_ptr = open(propertiesFile, "r")
         configData = json.load(file_ptr)
-        baseURL = configData["core.server.url"]
-        adminAuthToken = configData["core.server.token"]
         file_ptr.close()
         logger.info("Loading config data from properties file: %s" %propertiesFile)
+
+        # The file exists so can we get the config data from it?
+        if "core.server.url" in configData:
+            baseURL = configData["core.server.url"]
+        else:
+            baseURL = "http://localhost:8888"
+        
+        if "core.server.token" in configData:
+            adminAuthToken = configData["core.server.token"]
+        else:
+            adminAuthToken = "UPDATEME" 
     except:
         logger.error("Unable to open properties file: %s" %propertiesFile)
+
 else:
-    logger.info("Using config data from create_report.py")
+    logger.info("Using config data from registration.py")
     baseURL = "UPDATEME" # i.e. http://localhost:8888 or https://sca.mycodeinsight.com:8443 
     adminAuthToken = "UPDATEME"
 
 #####################################################################################################
 # Quick sanity check
 if adminAuthToken == "UPDATEME" or baseURL == "UPDATEME":
-    logger.error("Make sure baseURL and the admin authorization token have been updated within registration.py")
-    print("Make sure baseURL and the admin authorization token have been updated within registration.py")
+    message = "Ensure baseURL and the admin authorization token have been updated within registration.py or server_properties.json"
+    logger.error(message)
+    print(message)
     sys.exit()
 
 #####################################################################################################
-#  Report Details
-reportName = "Project Vulnerability Report"  # What is the name to be shown within Code Insight?
-enableProjectPickerValue = "false"   # true if a second project can be used within this report
+# Manage report option data
+if os.path.exists(configurationFile):
+    try:
+        file_ptr = open(configurationFile, "r")
+        configData = json.load(file_ptr)
+        file_ptr.close()
+        logger.info("Loading config data from properties file: %s" %configurationFile)
+    except:
+        logger.error("Unable to open properties file: %s" %configurationFile)
+        print("Unable to open properties file: %s" %configurationFile)
+        sys.exit()
+else:
+    logger.error("Report configuration file %s does not exist" %configurationFile)
+    print("Report configuration file %s does not exist" %configurationFile)
+    sys.exit()
 
-reportOptions = []
-#
-reportOption = {}
-reportOption["name"] = "includeChildProjects"
-reportOption["label"] = "Include child project data (True/False)"
-reportOption["description"] = "Should the report include data from child projects? <b>(True/False)</b>"
-reportOption["type"] = "string"
-reportOption["defaultValue"] = "True"
-reportOption["required"] = "true"
-reportOption["order"] = "1"
-reportOptions.append(reportOption)
+reportName = configData["reportName"]
+enableProjectPickerValue = configData["enableProjectPickerValue"]
+reportOptions = configData["reportOptions"]
 
-reportOption = {}
-reportOption["name"] = "cvssVersion"
-reportOption["label"] = "CVSS Version (2.0/3.x)"
-reportOption["description"] = "What version of CVSS scoring to report on? <b>(2.0/3.x)</b>"
-reportOption["type"] = "string"
-reportOption["defaultValue"] = "3.x"
-reportOption["required"] = "true"
-reportOption["order"] = "2"
-reportOptions.append(reportOption)
-
-reportOption = {}
-reportOption["name"] = "includeAssociatedFiles"
-reportOption["label"] = "Include associated files in report"
-reportOption["description"] = "Should the report include the associated files for the inventory item linked to the vulnerability? <b>(True/False)</b>"
-reportOption["type"] = "string"
-reportOption["defaultValue"] = "False"
-reportOption["required"] = "true"
-reportOption["order"] = "3"
-reportOptions.append(reportOption)
+#####################################################################################################
+# Get the directory name in order to register the script
+# this will be based on the git repo name is some cases
+currentFolderName = os.path.basename(os.getcwd())
 
 #####################################################################################################
 # The path with the custom_report_scripts folder to called via the framework
@@ -107,11 +105,6 @@ elif sys.platform == "win32":
     reportHelperScript = "create_report.bat"
 else:
     sys.exit("No script file for operating system")
-
-#####################################################################################################
-# Get the directory name in order to register the script
-# this will be based on the git repo name is some cases
-currentFolderName = os.path.basename(os.getcwd())
 
 reportPath = currentFolderName + "/" + reportHelperScript     
 
@@ -145,71 +138,120 @@ def main():
 def register_custom_reports():
     logger.debug("Entering register_custom_reports")
 
-    # Get the current reports so we can ensure the indexes of the new
-    # reports have no conflicts
-    try:
-        currentReports = CodeInsight_RESTAPIs.reports.get_reports.get_all_currently_registered_reports(baseURL, adminAuthToken)
-    except:
-        logger.error("Unable to retrieve currently registered reports")
-        print("Unable to retrieve currently registered reports.  See log file for details")
+    # Get the current reports so we can ensure the indexes of the new reports have no conflicts
+    response = CodeInsight_RESTAPIs.reports.get_reports.get_all_currently_registered_reports(baseURL, adminAuthToken)
+    
+    if "error" in response:
+        if "Status 401 – Unauthorized" in response["error"]:
+            print("Supplied token does not have admin privileges.")
+            logger.error("Supplied token does not have admin privileges.")
+        else:
+            logger.error("Error getting register reports:  %s" %response)
+            print("Error getting register reports:  %s" %response)
         sys.exit()
 
     # Determine the maximun ID of any current report
-    maxReportOrder = max(currentReports, key=lambda x:x['id'])["order"]
+    maxReportOrder = max(response, key=lambda x:x['id'])["order"]
     reportOrder = maxReportOrder + 1
 
     logger.info("Attempting to register %s with a report order of %s" %(reportName, reportOrder))
     print("Attempting to register %s with a report order of %s" %(reportName, reportOrder))
 
-    try:
-        reportID = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
-        print("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
-        logger.info("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
-    except:
-        logger.error("Report registration failed! Unable to registered report %s" %reportName)
-        print("Report registration failed! Unable to registered report %s.  See log file for details" %reportName)
+    response = CodeInsight_RESTAPIs.reports.create_report.register_report(reportName, reportPath, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
+
+    if "error" in response:
+        if "Unrecognized field" in response["error"]:
+            print("Unrecognized field within update body. See log for details")
+            logger.error("Unrecognized field within update body. See log for details") 
+        elif "Status 401 - Unauthorized" in response["error"]:
+            print("Supplied token does not have admin privileges.")
+            logger.error("Supplied token does not have admin privileges.")
+        elif "already exists. Enter a different name" in response["error"]:
+            print("A report by this name has aleady been registered. Did you mean to update?")
+            logger.error("A report by this name has aleady been registered. Did you mean to update?")
+        else:
+            logger.error(response)
+            print("Error getting report details:  %s" %response)
         sys.exit()
+
+    reportID = response["id"]
+    print("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
+    logger.info("Report registration succeeded! %s has been registered with a report ID of %s" %(reportName, reportID))
 
 #-----------------------------------------------------------------------#
 def unregister_custom_reports():
     logger.debug("Entering unregister_custom_reports")
 
-    try:
-        CodeInsight_RESTAPIs.reports.delete_report.unregister_report(baseURL, adminAuthToken, reportName)
+    # 2023R1 removed the ability to unregister a report by name so attempt to unregister by ID first
+    # and then default back to name to support older releases
+    response = CodeInsight_RESTAPIs.reports.get_reports.get_all_currently_registered_reports_by_name(baseURL, adminAuthToken, reportName)
+
+    if "error" in response:
+        if "Total records :0 number of pages :0" in response["error"]:
+            print("%s is not currently registered." %reportName)
+            logger.error("%s is not currently registered." %reportName)
+        else:
+            logger.error(response)
+            print("Error getting report details:  %s" %response)
+        sys.exit()
+    
+    reportId = response[0]["id"]
+
+    response = CodeInsight_RESTAPIs.reports.delete_report.unregister_report_by_id(baseURL, adminAuthToken, reportId)
+
+    if "error" in response:
+        # There was an error so try via the report name
+        response = CodeInsight_RESTAPIs.reports.delete_report.unregister_report_by_name(baseURL, adminAuthToken, reportName)
         print("%s has been unregistered." %reportName)
         logger.info("%s has been unregistered."%reportName)
-    except:
-        logger.error("Unable to unregister report %s" %reportName)
-        print("Unable to unregister report %s.  See log file for details" %reportName)
-        sys.exit()
-  
+
+    else:
+        print("%s has been unregistered." %reportName)
+        logger.info("%s has been unregistered."%reportName)
+        
 
 #-----------------------------------------------------------------------#
 def update_custom_reports():
     logger.debug("Entering update_custom_reports")
 
-    try:
-        currentReportDetails = CodeInsight_RESTAPIs.reports.get_reports.get_all_currently_registered_reports_by_name(baseURL, adminAuthToken, reportName)
-    except:
-        logger.error("Unable to retrieve details about report: %s" %reportName)
-        print("Unable to retrieve details about report: %s.  See log file for details" %reportName)
-        sys.exit()
+    response = CodeInsight_RESTAPIs.reports.get_reports.get_all_currently_registered_reports_by_name(baseURL, adminAuthToken, reportName)
 
-    reportID = currentReportDetails[0]["id"]
-    reportOrder = currentReportDetails[0]["order"]
+    if "error" in response:
+        if "Total records :0 number of pages :0" in response["error"]:
+            print("%s is not currently registered." %reportName)
+            logger.error("%s is not currently registered." %reportName)
+        elif "Status 401 - Unauthorized" in response["error"]:
+            print("Supplied token does not have admin privileges.")
+            logger.error("Supplied token does not have admin privileges.")
+        else:
+            logger.error(response)
+            print("Error getting report details:  %s" %response)
+        sys.exit() 
+
+    reportID = response[0]["id"]
+    reportOrder = response[0]["order"]
 
     logger.info("Attempting to update %s with a report id of %s" %(reportName, reportID))
     print("Attempting to update %s with a report id of %s" %(reportName, reportID))
 
-    try:
-        reportID = CodeInsight_RESTAPIs.reports.update_report.update_custom_report(reportName, reportPath, reportID, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
-        print("%s has been updated" %(reportName))
-        logger.info("%s has been updated." %(reportName))
-    except:
-        logger.error("Unable to update report %s" %reportName)
-        print("Unable to update report %s.  See log file for details" %reportName)
-        sys.exit()
+    response = CodeInsight_RESTAPIs.reports.update_report.update_custom_report(reportName, reportPath, reportID, reportOrder, enableProjectPickerValue, reportOptions, baseURL, adminAuthToken)
 
+    if "error" in response:
+        if "Unrecognized field" in response["error"]:
+            print("Unrecognized field within update body. See log for details")
+            logger.error("Unrecognized field within update body. See log for details")
+        elif "Status 401 - Unauthorized" in response["error"]:
+            print("Supplied token does not have admin privileges.")
+            logger.error("Supplied token does not have admin privileges.")
+        else:
+            logger.error(response)
+            print("Error getting report details:  %s" %response)
+        sys.exit()
+    elif "message" in response:
+        print("%s" %response["message"])
+        logger.info("%s" %response["message"])
+    else:
+        logger.error("Unrecognized response")
 
 
 
