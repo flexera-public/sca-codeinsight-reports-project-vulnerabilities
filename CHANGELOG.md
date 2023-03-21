@@ -5,8 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [3.3.0] - 2023-03-21
 ### Fixed
 - Fix issue when sorting and no data
+### Changed
+- Common registration script with registration_config.json file
+
 
 ## [3.2.0] - 2023-02-01
 ### Changed
