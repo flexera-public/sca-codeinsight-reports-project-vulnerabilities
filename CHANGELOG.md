@@ -6,12 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.3.1] - 2023-05-09
+### Added
+- Added logic to remove filePaths from inventory data response
+
 ## [3.3.0] - 2023-03-21
 ### Fixed
 - Fix issue when sorting and no data
 ### Changed
 - Common registration script with registration_config.json file
-
 
 ## [3.2.0] - 2023-02-01
 ### Changed
