@@ -75,7 +75,10 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
         projectData[projectName]["numNoneVulnerabilities"] = 0
 
         # Grab the full project inventory to get specific vulnerability details
-        full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
+        if includeAssociatedFiles:
+            full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
+        else: 
+            full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details_without_files(baseURL, projectID, authToken)
         
         inventoryItems = full_project_inventory["inventoryItems"] 
 
@@ -85,7 +88,6 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
             componentVersionName = inventoryItem["componentVersionName"]
             associatedFiles = inventoryItem["filePaths"]
             inventoryItemName = inventoryItem["name"]
-
             # This field was added in 2021R4 so if earlier release add the list
             try:
                 customFields = inventoryItem["customFields"]
