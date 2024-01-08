@@ -10,17 +10,19 @@ File : report_data.py
 
 import logging
 from collections import OrderedDict
-import CodeInsight_RESTAPIs.project.get_project_inventory
-import CodeInsight_RESTAPIs.project.get_child_projects
-import CodeInsight_RESTAPIs.project.get_project_information
-
-
+import common.api.project.get_project_inventory
+import common.api.project.get_child_projects
+import common.api.project.get_project_information
+import common.project_heirarchy
 
 logger = logging.getLogger(__name__)
 
 #-------------------------------------------------------------------#
-def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOptions):
+def gather_data_for_report(baseURL, authToken, reportData):
     logger.info("Entering gather_data_for_report")
+
+    projectID = reportData["projectID"]
+    reportOptions = reportData["reportOptions"]
 
     # Parse report options
     includeChildProjects = reportOptions["includeChildProjects"]  # True/False
@@ -36,24 +38,12 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     vulnerabilityDetails = {} # Create dictionary to hold all vulnerability data based on vul ID across all projects
     projectData = {} # Create a dictionary containing the project level summary data using projectID as keys
 
+    projectList = common.project_heirarchy.create_project_heirarchy(baseURL, authToken, projectID, includeChildProjects)
 
+    topLevelProjectName = projectList[0]["projectName"]
     # Get the list of parent/child projects start at the base project
-    projectHierarchy = CodeInsight_RESTAPIs.project.get_child_projects.get_child_projects_recursively(baseURL, projectID, authToken)
+    projectHierarchy = common.api.project.get_child_projects.get_child_projects_recursively(baseURL, projectID, authToken)
 
-    # Create a list of project data sorted by the project name at each level for report display  
-    # Add details for the parent node
-    nodeDetails = {}
-    nodeDetails["parent"] = "#"  # The root node
-    nodeDetails["projectName"] = projectHierarchy["name"]
-    nodeDetails["projectID"] = projectHierarchy["id"]
-    nodeDetails["projectLink"] = baseURL + "/codeinsight/FNCI#myprojectdetails/?id=" + str(projectHierarchy["id"]) + "&tab=projectInventory"
-
-    projectList.append(nodeDetails)
-
-    if includeChildProjects:
-        projectList = create_project_hierarchy(projectHierarchy, projectHierarchy["id"], projectList, baseURL)
-    else:
-        logger.debug("Child hierarchy disabled")
 
     # Collect details for each project
     for project in projectList:
@@ -76,9 +66,9 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
 
         # Grab the full project inventory to get specific vulnerability details
         if includeAssociatedFiles:
-            full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
+            full_project_inventory = common.api.project.get_project_inventory.get_project_inventory_details(baseURL, projectID, authToken)
         else: 
-            full_project_inventory = CodeInsight_RESTAPIs.project.get_project_inventory.get_project_inventory_details_without_files(baseURL, projectID, authToken)
+            full_project_inventory = common.api.project.get_project_inventory.get_project_inventory_details_without_files(baseURL, projectID, authToken)
         
         inventoryItems = full_project_inventory["inventoryItems"] 
 
@@ -189,8 +179,7 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     # Roll up the individual project data to the application level
     applicationSummaryData = create_application_summary_data_dict(projectSummaryData)
 
-    reportData = {}
-    reportData["reportName"] = reportName
+    reportData["topLevelProjectName"] = topLevelProjectName
     reportData["projectName"] = projectHierarchy["name"]
     reportData["projectID"] = projectID
     reportData["vulnerabilityDetails"] = sortedVulnerabilityDetails
@@ -200,31 +189,6 @@ def gather_data_for_report(baseURL, projectID, authToken, reportName, reportOpti
     reportData["projectHierarchy"] = projectHierarchy
 
     return reportData
-
-#----------------------------------------------#
-def create_project_hierarchy(project, parentID, projectList, baseURL):
-    logger.debug("Entering create_project_hierarchy with parentID : %s" %parentID)
-
-    # Are there more child projects for this project?
-    if len(project["childProject"]):
-
-        # Sort by project name of child projects
-        for childProject in sorted(project["childProject"], key = lambda i: i['name'] ) :
-            
-            uniqueProjectID = str(parentID) + "-" + str(childProject["id"])
-            nodeDetails = {}
-            nodeDetails["projectID"] = childProject["id"]
-            nodeDetails["parent"] = parentID
-            nodeDetails["uniqueID"] = uniqueProjectID
-            nodeDetails["projectName"] = childProject["name"]
-            nodeDetails["projectLink"] = baseURL + "/codeinsight/FNCI#myprojectdetails/?id=" + str(childProject["id"]) + "&tab=projectInventory"
-
-            projectList.append( nodeDetails )
-
-            create_project_hierarchy(childProject, uniqueProjectID, projectList, baseURL)
-
-    return projectList
-
 
 #----------------------------------------------------------------------------------------#
 def create_project_summary_data_dict(projectData):

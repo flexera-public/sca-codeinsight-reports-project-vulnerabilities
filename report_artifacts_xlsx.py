@@ -10,7 +10,7 @@ File : report_artifacts_xlsx.py
 import logging
 import xlsxwriter
 
-import report_branding.xlsx.xlsx_formatting
+import common.branding.xlsx.xlsx_formatting
 import _version
 
 logger = logging.getLogger(__name__)
@@ -40,16 +40,16 @@ def generate_xlsx_report(reportData):
     detailsWorksheet = workbook.add_worksheet('Vulnerability Details') 
     dataWorksheet = workbook.add_worksheet('Summary Data') 
 
-    cellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.standardCellFormatProperties)
-    cellLinkFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.linkCellFormatProperties)
-    hierarchyCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.hierarchyCellFormatProperties)
-    tableHeaderFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.tableHeaderFormatProperties)
+    cellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.standardCellFormatProperties)
+    cellLinkFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.linkCellFormatProperties)
+    hierarchyCellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.hierarchyCellFormatProperties)
+    tableHeaderFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.tableHeaderFormatProperties)
 
     # Create cell formats for the different vuln bands
-    criticalVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.criticalVulnerabilityCellFormat)
-    highVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.highVulnerabilityCellFormat)
-    mediumVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.mediumVulnerabilityCellFormat)
-    lowVulnerabilityCellFormat = workbook.add_format(report_branding.xlsx.xlsx_formatting.lowVulnerabilityCellFormat)
+    criticalVulnerabilityCellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.criticalVulnerabilityCellFormat)
+    highVulnerabilityCellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.highVulnerabilityCellFormat)
+    mediumVulnerabilityCellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.mediumVulnerabilityCellFormat)
+    lowVulnerabilityCellFormat = workbook.add_format(common.branding.xlsx.xlsx_formatting.lowVulnerabilityCellFormat)
 
     #############################################################################
     #  Create the summary charts based on the data from the Summary Data tab
@@ -62,17 +62,17 @@ def generate_xlsx_report(reportData):
 
 
     if cvssVersion == "3.x": 
-        vulnerabilityBarColors = [report_branding.xlsx.xlsx_formatting.criticalVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.highVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.mediumVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.lowVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.noneVulnColor]
+        vulnerabilityBarColors = [common.branding.xlsx.xlsx_formatting.criticalVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.highVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.mediumVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.lowVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.noneVulnColor]
         vulnerabiltyDataStartColumn = 1 # Start data in Column B on the Summary Data sheet
     else:
-        vulnerabilityBarColors = [report_branding.xlsx.xlsx_formatting.highVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.mediumVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.lowVulnColor, 
-                                    report_branding.xlsx.xlsx_formatting.noneVulnColor]
+        vulnerabilityBarColors = [common.branding.xlsx.xlsx_formatting.highVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.mediumVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.lowVulnColor, 
+                                    common.branding.xlsx.xlsx_formatting.noneVulnColor]
         vulnerabiltyDataStartColumn = 2 # Start data in Column C on the Summary Data sheet
 
 
