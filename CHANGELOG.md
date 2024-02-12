@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.0] - 2024-02-12
+### Changed
+- Update to common submodule
+### Fixed
+- Issue counting vulns with 0 score
+
 ## [3.3.2] - 2023-10-16
 ### Changed
 - Update API submodule to prep for tomcat upgrade in 2023R4
