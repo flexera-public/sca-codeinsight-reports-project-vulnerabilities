@@ -147,6 +147,7 @@ def gather_data_for_report(baseURL, authToken, reportData):
 
                             # Increment count based on severity to account for ignore list
                             severity = vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]
+                            print(severity)
                             
                             if severity == "CRITICAL":
                                 projectData[projectName]["numCriticalVulnerabilities"] +=1
@@ -156,7 +157,7 @@ def gather_data_for_report(baseURL, authToken, reportData):
                                 projectData[projectName]["numMediumVulnerabilities"] +=1
                             elif severity == "LOW":
                                 projectData[projectName]["numLowVulnerabilities"] +=1
-                            elif severity == "N/A":
+                            elif severity == "N/A" or severity == "NONE":
                                 projectData[projectName]["numNoneVulnerabilities"] +=1
 
                 else:
