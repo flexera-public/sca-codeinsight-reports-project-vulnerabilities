@@ -51,7 +51,7 @@ def generate_html_report(reportData):
     # Create a simple HTML file to display
     #---------------------------------------------------------------------------------------------------
     try:
-        html_ptr = open(htmlFile,"w")
+        html_ptr = open(htmlFile,"w", encoding="utf-8")
     except:
         logger.error("        Failed to open htmlfile %s:" %htmlFile)
         raise
