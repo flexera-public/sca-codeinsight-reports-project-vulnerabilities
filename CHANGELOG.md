@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.4.1] - 2024-03-12
+### Changed
+- Updated default encoding to utf8 while generating html report
+### Fixed
+- SCA-54810
+
 ## [3.4.0] - 2024-02-12
 ### Changed
 - Update to common submodule
