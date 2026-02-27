@@ -115,6 +115,25 @@ def gather_data_for_report(baseURL, authToken, reportData):
                             # Is it already in the list for this project?
                             vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
                         
+                        elif vulnerabilityName in vulnerabilityDetails:
+                            # Vulnerability exists but from a different project - add this project's data
+                            vulnerabilityDetails[vulnerabilityName]["affectedProjects"].append(projectName)
+                            vulnerabilityDetails[vulnerabilityName]["affectedComponents"].append([inventoryID, componentName, componentVersionName, projectName, projectLink, inventoryItemLink, associatedFiles])
+                            
+                            # Increment count based on severity for this project
+                            severity = vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"]
+                            
+                            if severity == "CRITICAL":
+                                projectData[projectName]["numCriticalVulnerabilities"] +=1
+                            elif severity== "HIGH":
+                                projectData[projectName]["numHighVulnerabilities"] +=1
+                            elif severity == "MEDIUM":
+                                projectData[projectName]["numMediumVulnerabilities"] +=1
+                            elif severity == "LOW":
+                                projectData[projectName]["numLowVulnerabilities"] +=1
+                            elif severity == "N/A" or severity == "NONE":
+                                projectData[projectName]["numNoneVulnerabilities"] +=1
+                        
                         else:
                             # This is a new vulnerability to track
                             vulnerabilityDetails[vulnerabilityName] = {}
