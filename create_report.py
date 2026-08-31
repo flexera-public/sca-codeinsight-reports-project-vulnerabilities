@@ -198,8 +198,10 @@ def verifyOptions(reportOptions):
 		reportOptions["cvssVersion"] = "2.0"
 	elif cvssVersion.startswith("3"):
 		reportOptions["cvssVersion"]  = "3.x"
+	elif cvssVersion.startswith("4"):
+		reportOptions["cvssVersion"]  = "4.x"
 	else:
-		reportOptions["errorMsg"].append("Invalid option for CVSS Version: <b>%s</b>.  Valid options are <b>2.0/3.x</b>" %cvssVersion)
+		reportOptions["errorMsg"].append("Invalid option for CVSS Version: <b>%s</b>.  Valid options are <b>2.0/3.x/4.x</b>" %cvssVersion)
 
 	if includeAssociatedFiles.lower() in trueOptions:
 		reportOptions["includeAssociatedFiles"] = True
