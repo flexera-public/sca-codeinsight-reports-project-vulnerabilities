@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.5.0] - 2026-02-27
 ### Changed
+- Added CVSSv4 Support
+
+## [3.5.0] - 2026-02-27
+### Changed
 - Fix issue when multiple project share same CVE
 ### Fixed
 - SCA-59232

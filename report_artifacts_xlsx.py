@@ -61,7 +61,7 @@ def generate_xlsx_report(reportData):
     applicationSummaryRow = catagoryHeaderRow + 1  # Where is the summary data on the Summary Data sheet
 
 
-    if cvssVersion == "3.x": 
+    if cvssVersion in ("3.x", "4.x"): 
         vulnerabilityBarColors = [common.branding.xlsx.xlsx_formatting.criticalVulnColor, 
                                     common.branding.xlsx.xlsx_formatting.highVulnColor, 
                                     common.branding.xlsx.xlsx_formatting.mediumVulnColor, 
@@ -156,7 +156,9 @@ def generate_xlsx_report(reportData):
     # Write the Column Headers
     row = 0
     column=0
-    if cvssVersion == "3.x": 
+    if cvssVersion == "4.x":
+        tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v4.x SCORE", "SEVERITY", "CVSS v4.x VECTOR", "SOURCE","PUBLSIHED", "LAST MODIFIED", "DESCRIPTION"]
+    elif cvssVersion == "3.x": 
         tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v3.x SCORE", "SEVERITY", "CVSS v3.x VECTOR", "SOURCE","PUBLSIHED", "LAST MODIFIED", "DESCRIPTION"]
     else:
         tableHeaders = ["VULNERABILITY", "COMPONENT", "CVSS v2 SCORE", "SEVERITY", "CVSS v2 VECTOR", "SOURCE","PUBLSIHED", "LAST MODIFIED", "DESCRIPTION"]
@@ -223,7 +225,7 @@ def generate_xlsx_report(reportData):
         row+=1
 
     # Apply conditional formatting for the CVSS scores 
-    if cvssVersion == "3.x": 
+    if cvssVersion in ("3.x", "4.x"): 
         detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 9, 'maximum': 10,'format': criticalVulnerabilityCellFormat})
         detailsWorksheet.conditional_format(1,2, 1 + len(vulnerabilityDetails), 2, {'type': 'cell', 'criteria': 'between', 'minimum': 7, 'maximum': 8.9,'format': highVulnerabilityCellFormat})
     else: 
@@ -242,7 +244,7 @@ def generate_xlsx_report(reportData):
     #############################################################################
 
     # Add the summary data for bar graphs
-    if cvssVersion == "3.x": 
+    if cvssVersion in ("3.x", "4.x"): 
         dataWorksheet.write('B' + str(catagoryHeaderRow +1) , "Critical")
     dataWorksheet.write('C' + str(catagoryHeaderRow +1) , "High")
     dataWorksheet.write('D' + str(catagoryHeaderRow +1) , "Medium")
@@ -252,7 +254,7 @@ def generate_xlsx_report(reportData):
     dataWorksheet.write('A' + str(catagoryHeaderRow +2) , "Application Summary")
     dataWorksheet.write_column('A' + str(catagoryHeaderRow +3), projectSummaryData["projectNames"])
 
-    if cvssVersion == "3.x": 
+    if cvssVersion in ("3.x", "4.x"): 
         dataWorksheet.write('B' + str(catagoryHeaderRow +2), applicationSummaryData["numCriticalVulnerabilities"])
         dataWorksheet.write_column('B' + str(catagoryHeaderRow +3), projectSummaryData["numCriticalVulnerabilities"])  
 

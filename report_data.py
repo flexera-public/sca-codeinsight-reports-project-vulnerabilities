@@ -29,7 +29,9 @@ def gather_data_for_report(baseURL, authToken, reportData):
     cvssVersion = reportOptions["cvssVersion"]  # 2.0/3.x
     includeAssociatedFiles = reportOptions["includeAssociatedFiles"]  # True/False
 
-    if cvssVersion == "3.x":
+    if cvssVersion == "4.x":
+        cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v4-calculator?name="
+    elif cvssVersion == "3.x":
         cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator?name="
     else:
         cvssBaseVectorLink = "https://nvd.nist.gov/vuln-metrics/cvss/v2-calculator?name="
@@ -56,7 +58,7 @@ def gather_data_for_report(baseURL, authToken, reportData):
         # Create empty dictionary for project level data for this project
         projectData[projectName] = {}
 
-        if cvssVersion == "3.x":
+        if cvssVersion in ("3.x", "4.x"):
             projectData[projectName]["numCriticalVulnerabilities"] = 0
 
         projectData[projectName]["numHighVulnerabilities"] = 0
@@ -142,7 +144,11 @@ def gather_data_for_report(baseURL, authToken, reportData):
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilitySource"] = vulnearbility["vulnerabilitySource"]
                             vulnerabilityDetails[vulnerabilityName]["vulnerabilityUrl"] = vulnearbility["vulnerabilityUrl"]
                             
-                            if cvssVersion == "3.x":
+                            if cvssVersion == "4.x":
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV4Severity"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV4Score"]
+                                vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV4Vector"]
+                            elif cvssVersion == "3.x":
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilitySeverity"] = vulnearbility["vulnerabilityCvssV3Severity"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityScore"] = vulnearbility["vulnerabilityCvssV3Score"]
                                 vulnerabilityDetails[vulnerabilityName]["vulnerabilityVector"] = vulnearbility["vulnerabilityCvssV3Vector"]

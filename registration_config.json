@@ -15,8 +15,8 @@
         "option2" : 
         {
             "name" : "cvssVersion",
-            "label" : "CVSS Version (2.0/3.x)",
-            "description" : "What version of CVSS scoring to report on? <b>(2.0/3.x)</b>",
+            "label" : "CVSS Version (2.0/3.x/4.x)",
+            "description" : "What version of CVSS scoring to report on? <b>(2.0/3.x/4.x)</b>",
             "type" : "string",
             "defaultValue" : "3.x",
             "required" : "true",

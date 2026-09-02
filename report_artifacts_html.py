@@ -193,12 +193,16 @@ def generate_html_report(reportData):
     html_ptr.write("        <tr>\n") 
     html_ptr.write("            <th style='width: 15%' class='text-center'>VULNERABILITY</th>\n") 
     html_ptr.write("            <th style='width: 20%' class='text-center'>COMPONENT</th>\n")
-    if cvssVersion == "3.x": 
+    if cvssVersion == "4.x":
+        html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v4.x</th>\n")
+    elif cvssVersion == "3.x": 
         html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v3.x</th>\n")
     else:
         html_ptr.write("            <th style='width: 5%; white-space:nowrap !important' class='text-center'>CVSS v2.0</th>\n")
     html_ptr.write("            <th style='width: 5%' class='text-center'>SEVERITY</th>\n")
-    if cvssVersion == "3.x": 
+    if cvssVersion == "4.x":
+        html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v4.x VECTOR</th>\n")
+    elif cvssVersion == "3.x": 
         html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v3.x VECTOR</th>\n")
     else:
         html_ptr.write("            <th style='width: 5%' class='text-center'>CVSS v2 VECTOR</th>\n")
@@ -438,7 +442,7 @@ def generate_application_summary_chart(html_ptr, applicationSummaryData):
         data: {
             datasets: [''')
 
-    if cvssVersion == "3.x":
+    if cvssVersion in ("3.x", "4.x"):
         html_ptr.write(''' {       
                 // Critical Vulnerabilities
                 label: 'Critical',
@@ -540,7 +544,7 @@ def generate_project_summary_charts(html_ptr, projectSummaryData):
             labels: %s,
             datasets: [''' %projectSummaryData["projectNames"])
 
-    if cvssVersion == "3.x":
+    if cvssVersion in ("3.x", "4.x"):
         html_ptr.write('''{          
                 // Critical Vulnerabilities
                 label: 'Critical',
